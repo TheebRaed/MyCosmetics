@@ -1,0 +1,15 @@
+class: StockAdjustment
+table: stock_adjustments
+fields:
+  variantId: int, relation(parent=product_variants, onDelete=Restrict)
+  adminId: int, relation(parent=users, onDelete=Restrict)
+  previousQty: int
+  newQty: int
+  delta: int
+  reason: String
+  createdAt: DateTime
+indexes:
+  stock_adj_variant_idx:
+    fields: variantId
+  stock_adj_created_idx:
+    fields: createdAt

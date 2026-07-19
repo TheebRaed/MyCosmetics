@@ -1,0 +1,26 @@
+apiServer:
+  port: 8080
+  publicHost: localhost
+  publicPort: 8080
+  publicScheme: http
+  logLevel: debug
+
+insightsServer:
+  port: 8081
+  publicHost: localhost
+  publicPort: 8081
+  publicScheme: http
+
+database:
+  host: localhost
+  port: 5432
+  name: mycosmetics_dev
+  user: postgres
+  password: 123456
+
+redis:
+  host: localhost
+  port: 6379
+  password: 123456
+
+sessionSecret: 9AAf2/Wp8FKlpYxhtBIbbkGtfsPBXanYVcqTg+IpVAK135/EKB/PYXGJt87VkSnq2QwxFl5I3AXSoO+yCybhqg==

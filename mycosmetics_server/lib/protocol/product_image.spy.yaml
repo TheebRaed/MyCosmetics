@@ -1,0 +1,25 @@
+enum: ProductSortBy
+serialized: byName
+values:
+  - newest
+  - priceLowToHigh
+  - priceHighToLow
+  - ratingHighToLow
+  - bestSelling
+
+### Composed read-model returned by product details / list endpoints so the
+### client never has to issue follow-up calls for variants/images.
+class: ProductDetail
+fields:
+  product: Product
+  variants: List<ProductVariant>
+  images: List<ProductImage>
+  brandName: String
+  categoryName: String
+
+class: ProductListResult
+fields:
+  items: List<ProductDetail>
+  totalCount: int
+  page: int
+  pageSize: int

@@ -1,0 +1,14 @@
+class: SkinProfile
+table: skin_profiles
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  skinToneHex: String?
+  undertone: String?
+  concerns: String?
+  scannedAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  skin_profiles_user_idx:
+    fields: userId
+    unique: true

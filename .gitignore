@@ -1,0 +1,44 @@
+# ── Secrets ──────────────────────────────────────────────────────
+.env
+.env.prod
+.env.staging
+.env.local
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+nginx/certs/
+
+# ── Dart / Flutter ───────────────────────────────────────────────
+.dart_tool/
+.packages
+build/
+*.g.dart
+*.freezed.dart
+pubspec.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# ── Server generated ─────────────────────────────────────────────
+mycosmetics_server/lib/src/generated/
+mycosmetics_server/generated/
+
+# ── Backups (never commit DB dumps) ─────────────────────────────
+backups/*.sql.gz
+backups/*.dump
+
+# ── IDE ──────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Docker override ───────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log
+logs/

@@ -1,0 +1,37 @@
+# Production server configuration.
+# All sensitive values come from environment variables — never hardcoded here.
+
+apiServer:
+  port: 8080
+  publicHost: api.mycosmetics.app
+  publicPort: 443
+  publicScheme: https
+  # Critical #6 (Phase 5.5): suppress request body logging in production
+  logLevel: warning
+
+insightsServer:
+  port: 8081
+  publicHost: api.mycosmetics.app
+  publicPort: 8081
+  publicScheme: https
+
+webServer:
+  port: 8082
+  publicHost: api.mycosmetics.app
+  publicPort: 443
+  publicScheme: https
+
+database:
+  host:     \${SERVERPOD_DATABASE_HOST}
+  port:     5432
+  name:     \${SERVERPOD_DATABASE_NAME}
+  user:     \${SERVERPOD_DATABASE_USER}
+  password: \${SERVERPOD_DATABASE_PASS}
+  requireSsl: true
+
+redis:
+  host:     \${SERVERPOD_REDIS_HOST}
+  port:     6379
+  password: \${SERVERPOD_REDIS_PASSWORD}
+
+sessionSecret: \${SERVERPOD_SESSION_SECRET}

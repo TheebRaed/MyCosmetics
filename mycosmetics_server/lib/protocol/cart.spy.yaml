@@ -1,0 +1,12 @@
+class: WishlistItem
+table: wishlist_items
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  productId: int, relation(parent=products, onDelete=Cascade)
+  createdAt: DateTime
+indexes:
+  wishlist_items_user_idx:
+    fields: userId
+  wishlist_items_user_product_idx:
+    fields: userId, productId
+    unique: true

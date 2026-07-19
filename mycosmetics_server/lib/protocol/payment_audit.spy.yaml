@@ -1,0 +1,18 @@
+### Immutable append-only payment audit log.
+### Every payment state transition writes one entry atomically.
+class: PaymentAuditLog
+table: payment_audit_logs
+fields:
+  paymentId: int, relation(parent=payments, onDelete=Restrict)
+  eventType: String
+  previousStatus: String?
+  newStatus: String
+  actorId: int?
+  source: String
+  providerPayload: String?
+  createdAt: DateTime
+indexes:
+  payment_audit_payment_idx:
+    fields: paymentId
+  payment_audit_created_idx:
+    fields: createdAt

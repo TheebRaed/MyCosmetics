@@ -1,0 +1,9 @@
+enum: UserRole
+serialized: byName
+values:
+  - customer
+  - admin
+  - staff
+  - inventoryManager
+  - customerSupport
+  - marketingManager

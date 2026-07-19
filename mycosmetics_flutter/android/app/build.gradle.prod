@@ -1,0 +1,51 @@
+// Production Android build configuration
+// Apply to android/app/build.gradle for release builds
+
+android {
+    compileSdkVersion 34
+    defaultConfig {
+        applicationId "app.mycosmetics.beautytech"
+        minSdkVersion 23
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0.0"
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release {
+            def keystoreProperties = new Properties()
+            def keystoreFile = rootProject.file('key.properties')
+            if (keystoreFile.exists()) {
+                keystoreProperties.load(new FileInputStream(keystoreFile))
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // Production API endpoint
+            buildConfigField "String", "API_BASE_URL", '"https://api.mycosmetics.app/"'
+            buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", '"pk_live_CHANGE_ME"'
+        }
+        debug {
+            buildConfigField "String", "API_BASE_URL", '"http://localhost:8080/"'
+            buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", '"pk_test_CHANGE_ME"'
+        }
+    }
+
+    bundle {
+        language { enableSplit = true }
+        density  { enableSplit = true }
+        abi      { enableSplit = true }
+    }
+}

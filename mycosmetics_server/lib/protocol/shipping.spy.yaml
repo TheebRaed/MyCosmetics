@@ -1,0 +1,62 @@
+enum: ShippingStatus
+serialized: byName
+values:
+  - pending
+  - readyToShip
+  - pickedUp
+  - inTransit
+  - outForDelivery
+  - delivered
+  - failed
+  - returned
+
+class: ShippingZone
+table: shipping_zones
+fields:
+  name: String
+  countries: String
+  isActive: bool, default=true
+  createdAt: DateTime
+indexes:
+  shipping_zone_name_idx:
+    fields: name
+
+class: ShippingMethod
+table: shipping_methods
+fields:
+  zoneId: int, relation(parent=shipping_zones, onDelete=Cascade)
+  name: String
+  description: String?
+  baseFee: double
+  freeAbove: double?
+  estimatedDays: int
+  isActive: bool, default=true
+  sortOrder: int, default=0
+  createdAt: DateTime
+indexes:
+  shipping_method_zone_idx:
+    fields: zoneId
+
+class: Shipment
+table: shipments
+fields:
+  orderId: int, relation(parent=orders, onDelete=Restrict)
+  methodId: int, relation(parent=shipping_methods, onDelete=Restrict)
+  status: ShippingStatus, default=ShippingStatus.pending
+  trackingNumber: String?
+  courierName: String?
+  courierUrl: String?
+  shippingFee: double
+  estimatedDelivery: DateTime?
+  actualDelivery: DateTime?
+  notes: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  shipment_order_idx:
+    fields: orderId
+    unique: true
+  shipment_tracking_idx:
+    fields: trackingNumber
+  shipment_status_idx:
+    fields: status

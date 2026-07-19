@@ -1,0 +1,13 @@
+### Short-lived single-use token for the forgot-password flow. tokenHash stored, never the raw token.
+class: PasswordResetToken
+table: password_reset_tokens
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  tokenHash: String
+  expiresAt: DateTime
+  usedAt: DateTime?
+  createdAt: DateTime
+indexes:
+  password_reset_tokens_hash_idx:
+    fields: tokenHash
+    unique: true

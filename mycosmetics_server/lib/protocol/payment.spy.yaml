@@ -1,0 +1,55 @@
+enum: PaymentProvider
+serialized: byName
+values:
+  - stripe
+  - cod
+  - future
+
+enum: PaymentMethod
+serialized: byName
+values:
+  - card
+  - cash
+  - bankTransfer
+
+enum: PaymentStatus
+serialized: byName
+values:
+  - pending
+  - authorised
+  - captured
+  - failed
+  - refunded
+  - partialRefund
+  - cancelled
+
+class: Payment
+table: payments
+fields:
+  orderId: int, relation(parent=orders, onDelete=Restrict)
+  provider: PaymentProvider
+  method: PaymentMethod
+  status: PaymentStatus, default=PaymentStatus.pending
+  amount: double
+  currency: String, default='USD'
+  providerRefId: String?
+  providerStatus: String?
+  failureReason: String?
+  idempotencyKey: String
+  paidAt: DateTime?
+  refundedAt: DateTime?
+  refundedAmount: double?
+  metadata: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  payment_order_idx:
+    fields: orderId
+    unique: true
+  payment_provider_ref_idx:
+    fields: providerRefId
+  payment_status_idx:
+    fields: status
+  payment_idempotency_idx:
+    fields: idempotencyKey
+    unique: true

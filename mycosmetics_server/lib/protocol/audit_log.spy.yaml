@@ -1,0 +1,19 @@
+class: AuditLog
+table: audit_logs
+fields:
+  adminId: int, relation(parent=users, onDelete=Restrict)
+  action: String
+  entity: String
+  entityId: int?
+  oldValue: String?
+  newValue: String?
+  ipAddress: String?
+  userAgent: String?
+  createdAt: DateTime
+indexes:
+  audit_log_admin_idx:
+    fields: adminId
+  audit_log_entity_idx:
+    fields: entity, entityId
+  audit_log_created_idx:
+    fields: createdAt

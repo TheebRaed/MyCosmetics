@@ -1,0 +1,48 @@
+### Composed read-model so the client gets cart + live variant/product info
+### + computed totals in one call instead of N follow-up requests.
+class: CartItemDetail
+fields:
+  cartItem: CartItem
+  productId: int
+  productName: String
+  shadeName: String?
+  hexColor: String?
+  imageUrl: String?
+  unitPrice: double
+  availableStock: int
+  lineTotal: double
+  isAvailable: bool
+
+class: CartSummary
+fields:
+  cartId: int
+  items: List<CartItemDetail>
+  subtotal: double
+  appliedCouponCode: String?
+  discountAmount: double
+  total: double
+
+class: WishlistItemDetail
+fields:
+  wishlistItem: WishlistItem
+  productName: String
+  basePrice: double
+  imageUrl: String?
+  isInStock: bool
+
+class: OrderDetail
+fields:
+  order: Order
+  items: List<OrderItem>
+  statusHistory: List<OrderStatusHistory>
+  shippingAddress: Address
+
+class: CheckoutResult
+fields:
+  order: OrderDetail
+
+class: CouponValidationResult
+fields:
+  isValid: bool
+  message: String
+  discountAmount: double

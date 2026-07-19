@@ -1,0 +1,26 @@
+apiServer:
+  port: 8080
+  publicHost: staging-api.mycosmetics.app
+  publicPort: 443
+  publicScheme: https
+  logLevel: info
+
+insightsServer:
+  port: 8081
+  publicHost: staging-api.mycosmetics.app
+  publicPort: 8081
+  publicScheme: https
+
+database:
+  host:     \${SERVERPOD_DATABASE_HOST}
+  port:     5432
+  name:     \${SERVERPOD_DATABASE_NAME}
+  user:     \${SERVERPOD_DATABASE_USER}
+  password: \${SERVERPOD_DATABASE_PASS}
+
+redis:
+  host:     \${SERVERPOD_REDIS_HOST}
+  port:     6379
+  password: \${SERVERPOD_REDIS_PASSWORD}
+
+sessionSecret: \${SERVERPOD_SESSION_SECRET}

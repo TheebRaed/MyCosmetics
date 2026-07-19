@@ -1,0 +1,88 @@
+class: DashboardOverview
+fields:
+  revenueTotal: double
+  revenueToday: double
+  revenueThisMonth: double
+  totalOrders: int
+  pendingOrders: int
+  processingOrders: int
+  completedOrders: int
+  cancelledOrders: int
+  activeCustomers: int
+  registeredUsers: int
+  totalProducts: int
+  lowStockProducts: int
+  outOfStockProducts: int
+
+class: SalesDataPoint
+fields:
+  label: String
+  revenue: double
+  orderCount: int
+
+class: DashboardCharts
+fields:
+  dailySales: List<SalesDataPoint>
+  monthlySales: List<SalesDataPoint>
+  revenueByCategory: List<SalesDataPoint>
+  revenueByBrand: List<SalesDataPoint>
+  userGrowth: List<SalesDataPoint>
+
+class: AdminProductRow
+fields:
+  id: int
+  name: String
+  categoryName: String
+  brandName: String
+  basePrice: double
+  totalStock: int
+  variantCount: int
+  isActive: bool
+  isFeatured: bool
+  ratingAvg: double
+
+class: AdminOrderRow
+fields:
+  id: int
+  customerName: String
+  customerEmail: String
+  status: String
+  paymentStatus: String
+  total: double
+  itemCount: int
+  createdAt: String
+
+class: AdminCustomerRow
+fields:
+  id: int
+  fullName: String
+  email: String
+  phone: String?
+  role: String
+  isActive: bool
+  orderCount: int
+  totalSpent: double
+  createdAt: String
+  lastActiveAt: String?
+
+class: InventoryRow
+fields:
+  variantId: int
+  productId: int
+  productName: String
+  shadeName: String?
+  sku: String
+  stockQty: int
+  isActive: bool
+  isLowStock: bool
+  isOutOfStock: bool
+
+class: AuditLogRow
+fields:
+  id: int
+  adminName: String
+  action: String
+  entity: String
+  entityId: int?
+  summary: String
+  createdAt: String

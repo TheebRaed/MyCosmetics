@@ -1,0 +1,28 @@
+enum: RefundStatus
+serialized: byName
+values:
+  - pending
+  - approved
+  - rejected
+  - processed
+
+class: RefundRequest
+table: refund_requests
+fields:
+  orderId: int, relation(parent=orders, onDelete=Restrict)
+  userId: int, relation(parent=users, onDelete=Restrict)
+  paymentId: int, relation(parent=payments, onDelete=Restrict)
+  reason: String
+  amount: double
+  status: RefundStatus, default=RefundStatus.pending
+  adminNote: String?
+  resolvedBy: int?
+  resolvedAt: DateTime?
+  createdAt: DateTime
+indexes:
+  refund_order_idx:
+    fields: orderId
+  refund_user_idx:
+    fields: userId
+  refund_status_idx:
+    fields: status

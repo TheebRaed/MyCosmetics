@@ -1,0 +1,19 @@
+class: ProductVariant
+table: product_variants
+fields:
+  productId: int, relation(parent=products, onDelete=Cascade)
+  shadeName: String?
+  hexColor: String?
+  size: String?
+  sku: String
+  price: double
+  stockQty: int, default=0
+  isActive: bool, default=true
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  product_variants_sku_idx:
+    fields: sku
+    unique: true
+  product_variants_product_idx:
+    fields: productId

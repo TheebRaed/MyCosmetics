@@ -1,0 +1,16 @@
+class: RecommendationHistory
+table: recommendation_history
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  skinProfileId: int, relation(parent=skin_profiles, onDelete=Restrict)
+  skinAnalysisResultId: int?, relation(parent=skin_analysis_results, onDelete=SetNull)
+  engineVersion: String
+  totalGenerated: int
+  categoryFilter: String?
+  triggeredBy: String
+  createdAt: DateTime
+indexes:
+  rec_history_user_idx:
+    fields: userId
+  rec_history_created_idx:
+    fields: createdAt

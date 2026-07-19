@@ -1,0 +1,14 @@
+class: Brand
+table: brands
+fields:
+  name: String
+  slug: String
+  logoUrl: String?
+  description: String?
+  isActive: bool, default=true
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  brands_slug_idx:
+    fields: slug
+    unique: true

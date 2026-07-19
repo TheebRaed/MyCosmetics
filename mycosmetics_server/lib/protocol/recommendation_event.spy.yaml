@@ -1,0 +1,21 @@
+enum: RecommendationEventType
+serialized: byName
+values:
+  - viewed
+  - triedOn
+  - addedToCart
+  - purchased
+  - dismissed
+
+class: RecommendationEvent
+table: recommendation_events
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  recommendationId: int, relation(parent=shade_recommendations, onDelete=Cascade)
+  eventType: RecommendationEventType
+  createdAt: DateTime
+indexes:
+  rec_event_user_idx:
+    fields: userId
+  rec_event_rec_idx:
+    fields: recommendationId

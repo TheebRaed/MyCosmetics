@@ -1,0 +1,15 @@
+class: TryOnEvent
+table: tryon_events
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  productVariantId: int, relation(parent=product_variants, onDelete=Cascade)
+  productCategory: String
+  sessionId: String
+  createdAt: DateTime
+indexes:
+  tryon_events_user_idx:
+    fields: userId
+  tryon_events_variant_idx:
+    fields: productVariantId
+  tryon_events_session_idx:
+    fields: sessionId

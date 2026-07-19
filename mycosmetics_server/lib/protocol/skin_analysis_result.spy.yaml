@@ -1,0 +1,18 @@
+class: SkinAnalysisResult
+table: skin_analysis_results
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  skinProfileId: int?, relation(parent=skin_profiles, onDelete=SetNull)
+  skinToneHex: String
+  brightness: double
+  undertone: String
+  uniformityScore: double
+  confidenceScore: double
+  analyzedAt: DateTime
+  deviceModel: String?
+  createdAt: DateTime
+indexes:
+  skin_analysis_user_idx:
+    fields: userId
+  skin_analysis_created_idx:
+    fields: createdAt

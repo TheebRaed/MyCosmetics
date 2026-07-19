@@ -1,0 +1,32 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  external_labels:
+    env: production
+    app: mycosmetics
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  - job_name: serverpod_api
+    static_configs:
+      - targets: ['api:8081']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  - job_name: node_exporter
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: postgres_exporter
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: nginx
+    static_configs:
+      - targets: ['nginx:9113']

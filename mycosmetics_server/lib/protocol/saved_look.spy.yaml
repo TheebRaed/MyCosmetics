@@ -1,0 +1,13 @@
+class: SavedLook
+table: saved_looks
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  name: String
+  imageUrl: String
+  appliedVariantIds: String
+  isFavorite: bool, default=false
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  saved_looks_user_idx:
+    fields: userId

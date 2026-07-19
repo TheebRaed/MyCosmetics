@@ -1,0 +1,15 @@
+### variantId is nullable: null means the image applies to the product
+### generally (e.g. hero shot); set means it's specific to one shade/variant.
+class: ProductImage
+table: product_images
+fields:
+  productId: int, relation(parent=products, onDelete=Cascade)
+  variantId: int?, relation(parent=product_variants, onDelete=Cascade)
+  url: String
+  sortOrder: int, default=0
+  createdAt: DateTime
+indexes:
+  product_images_product_idx:
+    fields: productId
+  product_images_variant_idx:
+    fields: variantId

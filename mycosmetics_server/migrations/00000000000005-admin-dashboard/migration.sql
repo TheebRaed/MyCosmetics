@@ -1,0 +1,24 @@
+-- Migration: 00000000000005-admin-dashboard.sql
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "suspendedAt" timestamp without time zone, ADD COLUMN IF NOT EXISTS "suspendedReason" text, ADD COLUMN IF NOT EXISTS "lastActiveAt" timestamp without time zone;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "tryOnEnabled" boolean NOT NULL DEFAULT true, ADD COLUMN IF NOT EXISTS "aiRecommendationEnabled" boolean NOT NULL DEFAULT true, ADD COLUMN IF NOT EXISTS "discountPercent" double precision, ADD COLUMN IF NOT EXISTS "discountExpiresAt" timestamp without time zone;
+
+CREATE TABLE IF NOT EXISTS "audit_logs" ("id" bigserial PRIMARY KEY, "adminId" bigint NOT NULL REFERENCES "users"("id") ON DELETE RESTRICT, "action" text NOT NULL, "entity" text NOT NULL, "entityId" bigint, "oldValue" text, "newValue" text, "ipAddress" text, "userAgent" text, "createdAt" timestamp without time zone NOT NULL);
+CREATE INDEX IF NOT EXISTS "audit_log_admin_idx"   ON "audit_logs" ("adminId");
+CREATE INDEX IF NOT EXISTS "audit_log_entity_idx"  ON "audit_logs" ("entity", "entityId");
+CREATE INDEX IF NOT EXISTS "audit_log_created_idx" ON "audit_logs" ("createdAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "stock_adjustments" ("id" bigserial PRIMARY KEY, "variantId" bigint NOT NULL REFERENCES "product_variants"("id") ON DELETE RESTRICT, "adminId" bigint NOT NULL REFERENCES "users"("id") ON DELETE RESTRICT, "previousQty" integer NOT NULL, "newQty" integer NOT NULL, "delta" integer NOT NULL, "reason" text NOT NULL, "createdAt" timestamp without time zone NOT NULL);
+CREATE INDEX IF NOT EXISTS "stock_adj_variant_idx" ON "stock_adjustments" ("variantId");
+CREATE INDEX IF NOT EXISTS "stock_adj_created_idx" ON "stock_adjustments" ("createdAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "admin_notifications" ("id" bigserial PRIMARY KEY, "adminId" bigint NOT NULL REFERENCES "users"("id") ON DELETE RESTRICT, "title" text NOT NULL, "body" text NOT NULL, "audience" text NOT NULL DEFAULT 'allUsers', "audienceFilter" text, "status" text NOT NULL DEFAULT 'draft', "scheduledAt" timestamp without time zone, "sentAt" timestamp without time zone, "recipientCount" integer NOT NULL DEFAULT 0, "createdAt" timestamp without time zone NOT NULL, "updatedAt" timestamp without time zone NOT NULL, CONSTRAINT "notif_audience_check" CHECK ("audience" IN ('allUsers','selectedUsers','byCategory','byPurchaseHistory')), CONSTRAINT "notif_status_check" CHECK ("status" IN ('draft','scheduled','sent','failed')));
+
+CREATE INDEX IF NOT EXISTS "orders_created_status_idx" ON "orders" ("createdAt" DESC, "status") WHERE "status" NOT IN ('cancelled');
+CREATE INDEX IF NOT EXISTS "variants_stock_active_idx"  ON "product_variants" ("stockQty", "isActive") WHERE "isActive" = true;
+
+CREATE OR REPLACE VIEW "v_daily_revenue" AS SELECT DATE("createdAt") AS "date", COALESCE(SUM("total"),0) AS "revenue", COUNT(*) AS "orderCount" FROM "orders" WHERE "status" != 'cancelled' AND "createdAt" >= NOW() - INTERVAL '90 days' GROUP BY DATE("createdAt") ORDER BY "date";
+CREATE OR REPLACE VIEW "v_monthly_revenue" AS SELECT TO_CHAR("createdAt",'YYYY-MM') AS "month", COALESCE(SUM("total"),0) AS "revenue", COUNT(*) AS "orderCount" FROM "orders" WHERE "status" != 'cancelled' AND "createdAt" >= NOW() - INTERVAL '12 months' GROUP BY TO_CHAR("createdAt",'YYYY-MM') ORDER BY "month";
+CREATE OR REPLACE VIEW "v_revenue_by_category" AS SELECT c."name" AS "label", COALESCE(SUM(oi."lineTotal"),0) AS "revenue", COUNT(DISTINCT oi."orderId") AS "orderCount" FROM "order_items" oi JOIN "product_variants" pv ON pv."id"=oi."variantId" JOIN "products" p ON p."id"=pv."productId" JOIN "categories" c ON c."id"=p."categoryId" JOIN "orders" o ON o."id"=oi."orderId" WHERE o."status" != 'cancelled' GROUP BY c."name";
+CREATE OR REPLACE VIEW "v_revenue_by_brand" AS SELECT b."name" AS "label", COALESCE(SUM(oi."lineTotal"),0) AS "revenue", COUNT(DISTINCT oi."orderId") AS "orderCount" FROM "order_items" oi JOIN "product_variants" pv ON pv."id"=oi."variantId" JOIN "products" p ON p."id"=pv."productId" JOIN "brands" b ON b."id"=p."brandId" JOIN "orders" o ON o."id"=oi."orderId" WHERE o."status" != 'cancelled' GROUP BY b."name" ORDER BY "revenue" DESC;
+CREATE OR REPLACE VIEW "v_user_growth" AS SELECT DATE("createdAt") AS "date", COUNT(*) AS "orderCount", 0::double precision AS "revenue" FROM "users" WHERE "deletedAt" IS NULL AND "createdAt" >= NOW() - INTERVAL '90 days' GROUP BY DATE("createdAt") ORDER BY "date";
+CREATE OR REPLACE VIEW "v_inventory_summary" AS SELECT pv."id" AS "variantId", p."id" AS "productId", p."name" AS "productName", pv."shadeName", pv."sku", pv."stockQty", pv."isActive", (pv."stockQty">0 AND pv."stockQty"<=10) AS "isLowStock", (pv."stockQty"=0) AS "isOutOfStock" FROM "product_variants" pv JOIN "products" p ON p."id"=pv."productId" WHERE p."deletedAt" IS NULL;
