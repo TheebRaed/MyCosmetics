@@ -1,12 +1,14 @@
 # Multi-stage Dart production Dockerfile
-# Stage 1: Build
+# Build context is the repo root (not this directory), because the server
+# depends on the generated ../mycosmetics_client package via a path
+# dependency: docker build -f mycosmetics_server/Dockerfile .
 FROM dart:stable AS builder
 
-WORKDIR /app
-COPY pubspec.yaml pubspec.lock ./
-RUN dart pub get --no-precompile
+WORKDIR /repo
+COPY mycosmetics_client ./mycosmetics_client
+COPY mycosmetics_server ./mycosmetics_server
 
-COPY . .
+WORKDIR /repo/mycosmetics_server
 RUN dart pub get
 RUN dart compile exe bin/main.dart -o bin/server
 
@@ -18,10 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=builder /app/bin/server ./bin/server
-COPY --from=builder /app/config ./config
-COPY --from=builder /app/migrations ./migrations
-COPY --from=builder /app/web ./web 2>/dev/null || true
+COPY --from=builder /repo/mycosmetics_server/bin/server ./bin/server
+COPY --from=builder /repo/mycosmetics_server/config ./config
+COPY --from=builder /repo/mycosmetics_server/migrations ./migrations
 
 RUN chmod +x ./bin/server
 RUN useradd -r -s /bin/false -u 1001 serverpod
