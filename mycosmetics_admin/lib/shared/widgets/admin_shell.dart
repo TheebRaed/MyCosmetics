@@ -30,10 +30,10 @@ class AdminShell extends ConsumerWidget {
     final sidebar = Container(
       width: 240, color: AdminColors.sidebar,
       child: SafeArea(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(20), child: Row(children: [
-          const Icon(Icons.spa, color: Colors.white, size: 28),
-          const SizedBox(width: 10),
-          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Padding(padding: EdgeInsets.all(20), child: Row(children: [
+          Icon(Icons.spa, color: Colors.white, size: 28),
+          SizedBox(width: 10),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('MyCosmetics', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
             Text('Admin', style: TextStyle(color: Colors.white54, fontSize: 11)),
           ]),

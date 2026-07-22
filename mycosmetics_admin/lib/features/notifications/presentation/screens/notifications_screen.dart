@@ -62,7 +62,7 @@ class AdminNotificationsScreen extends ConsumerWidget {
         TextField(controller: bodyCtrl, decoration: const InputDecoration(labelText: 'Message'), maxLines: 3, maxLength: 250),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          value: audience, decoration: const InputDecoration(labelText: 'Audience'),
+          initialValue: audience, decoration: const InputDecoration(labelText: 'Audience'),
           items: _audiences.map((a) => DropdownMenuItem(value: a.$1, child: Row(children: [Icon(a.$3, size: 18), const SizedBox(width: 8), Text(a.$2)]))).toList(),
           onChanged: (v) => ss(() => audience = v!),
         ),

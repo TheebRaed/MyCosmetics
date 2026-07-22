@@ -158,7 +158,7 @@ class _ScanningBeat extends StatelessWidget {
                     decoration: BoxDecoration(color: _colorFromHex(hex), shape: BoxShape.circle),
                   ),
                 ),
-                ScanLineOverlay(height: height),
+                const ScanLineOverlay(height: height),
               ],
             ),
           ),

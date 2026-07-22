@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/admin_theme.dart';
 import '../../../../shared/widgets/admin_widgets.dart';
-import '../../../dashboard/data/models/admin_models.dart';
 import '../../../dashboard/data/repositories/admin_repository.dart';
 import '../providers/coupons_providers.dart';
 
@@ -39,7 +38,7 @@ class CouponsScreen extends ConsumerWidget {
                     DataCell(Text('${c.usedCount}${c.usageLimit != null ? ' / ${c.usageLimit}' : ''}')),
                     DataCell(Text(c.expiresAt != null ? c.expiresAt!.substring(0, 10) : 'Never')),
                     DataCell(Switch(
-                      value: c.isActive, activeColor: AdminColors.primary,
+                      value: c.isActive, activeThumbColor: AdminColors.primary,
                       onChanged: (v) async {
                         await ref.read(adminRepositoryProvider).setCouponActive(c.id, v);
                         ref.invalidate(adminCouponsProvider);
@@ -61,7 +60,7 @@ class CouponsScreen extends ConsumerWidget {
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(controller: codeCtrl, textCapitalization: TextCapitalization.characters, decoration: const InputDecoration(labelText: 'Code (e.g. SAVE20)')),
         const SizedBox(height: 12),
-        DropdownButtonFormField<String>(value: type, decoration: const InputDecoration(labelText: 'Type'),
+        DropdownButtonFormField<String>(initialValue: type, decoration: const InputDecoration(labelText: 'Type'),
           items: const [DropdownMenuItem(value: 'percentage', child: Text('Percentage %')), DropdownMenuItem(value: 'fixedAmount', child: Text('Fixed Amount \$'))],
           onChanged: (v) => ss(() => type = v!)),
         const SizedBox(height: 12),

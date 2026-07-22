@@ -42,7 +42,7 @@ void main() {
   group('KPI Card rendering', () {
     testWidgets('renders label and value', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: _KpiCard(label: 'Total Revenue', value: '\$1,234'))),
+        const MaterialApp(home: Scaffold(body: _KpiCard(label: 'Total Revenue', value: '\$1,234'))),
       );
       expect(find.text('TOTAL REVENUE'), findsOneWidget);
       expect(find.text('\$1,234'), findsOneWidget);

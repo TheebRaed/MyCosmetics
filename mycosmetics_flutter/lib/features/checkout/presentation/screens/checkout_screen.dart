@@ -115,7 +115,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   final selected = addresses.where((a) => a.id == _selectedAddressId);
                   final selectedAddress = selected.isEmpty ? null : selected.first;
 
-                  return Column(
+                  return RadioGroup<int>(
+                    groupValue: _selectedAddressId,
+                    onChanged: (v) => setState(() => _selectedAddressId = v),
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (addresses.isEmpty)
@@ -126,8 +129,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             padding: EdgeInsets.zero,
                             child: RadioListTile<int>(
                               value: a.id!,
-                              groupValue: _selectedAddressId,
-                              onChanged: (v) => setState(() => _selectedAddressId = v),
                               title: Text(a.fullName, style: TextStyle(color: heading, fontWeight: FontWeight.w600)),
                               subtitle: Text(
                                 '${a.line1}${a.line2 != null ? ', ${a.line2}' : ''}, ${a.city}, ${a.country}',
@@ -154,6 +155,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         ),
                       ],
                     ],
+                    ),
                   );
                 },
               ),
@@ -238,7 +240,10 @@ class _ShippingMethodSection extends ConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (selectedId == null) onSelected(methods.first['id'] as String);
         });
-        return Column(
+        return RadioGroup<String>(
+          groupValue: selectedId,
+          onChanged: onSelected,
+          child: Column(
           children: methods.map((m) {
             final id = m['id'] as String;
             final fee = (m['fee'] as num).toDouble();
@@ -247,8 +252,6 @@ class _ShippingMethodSection extends ConsumerWidget {
               padding: EdgeInsets.zero,
               child: RadioListTile<String>(
                 value: id,
-                groupValue: selectedId,
-                onChanged: onSelected,
                 title: Text(m['name'] as String, style: TextStyle(color: heading, fontWeight: FontWeight.w600)),
                 subtitle: Text('${m['estimatedDays']} day(s)', style: TextStyle(color: muted)),
                 secondary: Text(
@@ -258,6 +261,7 @@ class _ShippingMethodSection extends ConsumerWidget {
               ),
             );
           }).toList(),
+          ),
         );
       },
     );

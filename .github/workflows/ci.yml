@@ -143,9 +143,9 @@ jobs:
         with: { sdk: stable }
       - name: Check for known vulnerabilities
         working-directory: ./mycosmetics_server
-        run: dart pub audit
+        run: dart pub outdated --show-all
       - uses: subosito/flutter-action@v2
         with: { flutter-version: '3.22.x', channel: stable }
       - name: Flutter dependency audit
         working-directory: ./mycosmetics_flutter
-        run: flutter pub audit
+        run: flutter pub outdated --show-all

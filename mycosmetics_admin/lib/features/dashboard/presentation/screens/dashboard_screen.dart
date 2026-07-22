@@ -96,7 +96,7 @@ class _LineChart extends StatelessWidget {
         bottomTitles:AxisTitles(sideTitles: SideTitles(showTitles: false)),
         leftTitles:  AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 48)),
       ),
-      lineBarsData: [LineChartBarData(spots: spots, isCurved: true, color: AdminColors.primary, barWidth: 2.5, dotData: const FlDotData(show: false), belowBarData: BarAreaData(show: true, color: AdminColors.primary.withOpacity(0.08)))],
+      lineBarsData: [LineChartBarData(spots: spots, isCurved: true, color: AdminColors.primary, barWidth: 2.5, dotData: const FlDotData(show: false), belowBarData: BarAreaData(show: true, color: AdminColors.primary.withValues(alpha: 0.08)))],
     ));
   }
 }

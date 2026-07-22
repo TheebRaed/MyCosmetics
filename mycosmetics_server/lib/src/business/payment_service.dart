@@ -284,7 +284,6 @@ class PaymentService {
     String? providerStatus,
     String? failureReason,
     String? providerPayload,
-    Transaction? transaction,
   }) async {
     final prev = payment.status.name;
     final now  = DateTime.now().toUtc();

@@ -7,7 +7,7 @@ class KpiCard extends StatelessWidget {
   final String label, value; final IconData icon; final Color color; final String? trend;
   @override
   Widget build(BuildContext context) => Card(child: Padding(padding: AdminSpacing.cardPadding, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Row(children: [Container(width: 36, height: 36, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: color, size: 18)), const Spacer(), if (trend != null) Text(trend!, style: const TextStyle(color: AdminColors.success, fontSize: 11, fontWeight: FontWeight.w700))]),
+    Row(children: [Container(width: 36, height: 36, decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: color, size: 18)), const Spacer(), if (trend != null) Text(trend!, style: const TextStyle(color: AdminColors.success, fontSize: 11, fontWeight: FontWeight.w700))]),
     const SizedBox(height: 12),
     Text(value, style: AdminTextStyles.kpiValue),
     const SizedBox(height: 2),
@@ -54,7 +54,7 @@ class AdminStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-    decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
     child: Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700)),
   );
 }

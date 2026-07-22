@@ -19,7 +19,6 @@ class RateLimiter {
     required int maxRequests,
     required Duration window,
   }) async {
-    final key = 'ratelimit:$endpoint:$identifier';
     final now = DateTime.now().millisecondsSinceEpoch;
     final windowMs = window.inMilliseconds;
     final windowStart = now - windowMs;

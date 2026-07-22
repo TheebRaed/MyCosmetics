@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/admin_theme.dart';
 import '../../../../shared/widgets/admin_widgets.dart';
-import '../../../dashboard/data/models/admin_models.dart';
 import '../providers/products_providers.dart';
 
 class ProductsScreen extends ConsumerWidget {

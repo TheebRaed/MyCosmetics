@@ -15,6 +15,7 @@ class _AuditFilter {
 
 @riverpod
 class AuditFilterNotifier extends _$AuditFilterNotifier {
+  // ignore: library_private_types_in_public_api
   @override _AuditFilter build() => const _AuditFilter();
   void setEntity(String? e) => state = _AuditFilter(page: 0, entity: e, dateFrom: state.dateFrom);
   void setPage(int p) => state = _AuditFilter(page: p, entity: state.entity, dateFrom: state.dateFrom);
@@ -41,10 +42,10 @@ class AuditLogScreen extends ConsumerWidget {
     return Padding(
       padding: AdminSpacing.pagePadding,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        AdminPageHeader(title: 'Audit Log', subtitle: 'Immutable record of all admin actions'),
+        const AdminPageHeader(title: 'Audit Log', subtitle: 'Immutable record of all admin actions'),
         Row(children: [
           SizedBox(width: 200, child: DropdownButtonFormField<String?>(
-            value: f.entity,
+            initialValue: f.entity,
             decoration: const InputDecoration(hintText: 'Filter by entity', isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
             items: [const DropdownMenuItem(value: null, child: Text('All Entities')), ..._entities.map((e) => DropdownMenuItem(value: e, child: Text(e)))],
             onChanged: (v) => ref.read(auditFilterNotifierProvider.notifier).setEntity(v),

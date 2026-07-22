@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/admin_theme.dart';
 import '../../../../shared/widgets/admin_widgets.dart';
-import '../../../dashboard/data/models/admin_models.dart';
 import '../providers/customers_providers.dart';
 
 class CustomersScreen extends ConsumerWidget {
