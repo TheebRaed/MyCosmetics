@@ -36,56 +36,51 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports: ['6379:6379']
-
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.x'
           channel: stable
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
-
+      - name: Verify Flutter
+        run: flutter --version
       - name: Cache pub dependencies
         uses: actions/cache@v4
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
-
       - name: Install dependencies
         working-directory: ./mycosmetics_server
         run: dart pub get
-
       - name: Generate Serverpod client
         working-directory: ./mycosmetics_server
         run: dart pub global run serverpod_cli generate
-
       - name: Run migrations
         working-directory: ./mycosmetics_server
         env:
           SERVERPOD_DATABASE_HOST: localhost
           SERVERPOD_DATABASE_NAME: mycosmetics_test
           SERVERPOD_DATABASE_USER: postgres
-          SERVERPOD_DATABASE_PASS: testpassword
+          SERVERPOD_DATABASE_PASSWORD: testpassword
           SERVERPOD_REDIS_HOST: localhost
+          SERVERPOD_REDIS_PASSWORD: ''
           SERVERPOD_SESSION_SECRET: test-secret-key
         run: dart run bin/main.dart --mode=test --apply-migrations
-
       - name: Run unit tests
         working-directory: ./mycosmetics_server
         env:
           SERVERPOD_DATABASE_HOST: localhost
           SERVERPOD_DATABASE_NAME: mycosmetics_test
           SERVERPOD_DATABASE_USER: postgres
-          SERVERPOD_DATABASE_PASS: testpassword
+          SERVERPOD_DATABASE_PASSWORD: testpassword
           SERVERPOD_REDIS_HOST: localhost
+          SERVERPOD_REDIS_PASSWORD: ''
           SERVERPOD_SESSION_SECRET: test-secret-key
         run: dart test test/ --reporter=github
-
       - name: Analyze code
         working-directory: ./mycosmetics_server
         run: dart analyze --fatal-warnings
@@ -104,34 +99,28 @@ jobs:
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
-
+      - name: Verify Flutter
+        run: flutter --version
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
-
       - name: Install server dependencies
         working-directory: ./mycosmetics_server
         run: dart pub get
-
       - name: Generate Serverpod client
         working-directory: ./mycosmetics_server
         run: dart pub global run serverpod_cli generate
-
       - name: Install dependencies (customer app)
         working-directory: ./mycosmetics_flutter
         run: flutter pub get
-
       - name: Run Flutter tests
         working-directory: ./mycosmetics_flutter
         run: flutter test --reporter=github
-
       - name: Analyze Flutter code
         working-directory: ./mycosmetics_flutter
         run: flutter analyze --fatal-warnings
-
       - name: Install dependencies (admin app)
         working-directory: ./mycosmetics_admin
         run: flutter pub get
-
       - name: Analyze admin code
         working-directory: ./mycosmetics_admin
         run: flutter analyze --fatal-warnings
@@ -144,9 +133,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with: { flutter-version: '3.22.x', channel: stable }
+        with:
+          channel: stable
       - uses: dart-lang/setup-dart@v1
-        with: { sdk: stable }
+        with:
+          sdk: stable
+      - name: Verify Flutter
+        run: flutter --version
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
       - name: Install server dependencies
@@ -160,13 +153,13 @@ jobs:
       - name: Run container health check
         run: |
           docker run -d --name test-api \
-            -e SERVERPOD_DATABASE_HOST=localhost \
-            -e SERVERPOD_DATABASE_NAME=test \
-            -e SERVERPOD_DATABASE_USER=postgres \
-            -e SERVERPOD_DATABASE_PASS=test \
-            -e SERVERPOD_REDIS_HOST=localhost \
-            -e SERVERPOD_SESSION_SECRET=test \
-            -p 8080:8080 mycosmetics-api:ci
+          -e SERVERPOD_DATABASE_HOST=localhost \
+          -e SERVERPOD_DATABASE_NAME=test \
+          -e SERVERPOD_DATABASE_USER=postgres \
+          -e SERVERPOD_DATABASE_PASS=test \
+          -e SERVERPOD_REDIS_HOST=localhost \
+          -e SERVERPOD_SESSION_SECRET=test \
+          -p 8080:8080 mycosmetics-api:ci
           sleep 5
           docker stop test-api || true
 
@@ -177,9 +170,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with: { flutter-version: '3.22.x', channel: stable }
+        with:
+          channel: stable
       - uses: dart-lang/setup-dart@v1
-        with: { sdk: stable }
+        with:
+          sdk: stable
+      - name: Verify Flutter
+        run: flutter --version
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
       - name: Install server dependencies

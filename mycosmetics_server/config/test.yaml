@@ -1,0 +1,28 @@
+apiServer:
+  port: 8080
+  publicHost: localhost
+  publicPort: 8080
+  publicScheme: http
+  logLevel: debug
+
+insightsServer:
+  port: 8081
+  publicHost: localhost
+  publicPort: 8081
+  publicScheme: http
+
+database:
+  host: localhost
+  port: 5432
+  name: mycosmetics_test
+  user: postgres
+
+redis:
+  host: localhost
+  port: 6379
+
+# database/redis/service-secret passwords are supplied via the
+# SERVERPOD_DATABASE_PASSWORD / SERVERPOD_REDIS_PASSWORD / SERVERPOD_SERVICE_SECRET
+# environment variables (see PasswordManager) -- Serverpod's config loader does
+# not perform ${VAR} substitution, so those must not appear as literal yaml values.
+sessionSecret: test-secret-key
