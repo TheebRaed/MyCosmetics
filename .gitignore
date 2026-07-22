@@ -25,7 +25,10 @@ mycosmetics_server/lib/src/generated/
 mycosmetics_server/generated/
 
 # ── Client generated (regenerate via `serverpod generate`) ───────
-mycosmetics_client/
+# pubspec.yaml is hand-maintained and must stay tracked -- `serverpod
+# generate` needs an existing client package (at least its pubspec.yaml)
+# to regenerate into; it does not scaffold one from scratch.
+mycosmetics_client/lib/
 
 # ── Flutter platform scaffolding (machine/build-generated) ───────
 **/android/local.properties

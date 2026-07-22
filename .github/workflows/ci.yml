@@ -52,13 +52,13 @@ jobs:
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
 
-      - name: Generate Serverpod client
-        working-directory: ./mycosmetics_server
-        run: dart pub global run serverpod_cli generate
-
       - name: Install dependencies
         working-directory: ./mycosmetics_server
         run: dart pub get
+
+      - name: Generate Serverpod client
+        working-directory: ./mycosmetics_server
+        run: dart pub global run serverpod_cli generate
 
       - name: Run migrations
         working-directory: ./mycosmetics_server
@@ -92,18 +92,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Activate serverpod_cli
+        run: dart pub global activate serverpod_cli 2.9.3
+
+      - name: Install server dependencies
+        working-directory: ./mycosmetics_server
+        run: dart pub get
+
+      - name: Generate Serverpod client
+        working-directory: ./mycosmetics_server
+        run: dart pub global run serverpod_cli generate
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.x'
           channel: stable
           cache: true
-
-      - name: Activate serverpod_cli
-        run: dart pub global activate serverpod_cli 2.9.3
-
-      - name: Generate Serverpod client
-        working-directory: ./mycosmetics_server
-        run: dart pub global run serverpod_cli generate
 
       - name: Install dependencies (customer app)
         working-directory: ./mycosmetics_flutter
@@ -136,6 +144,9 @@ jobs:
         with: { sdk: stable }
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
+      - name: Install server dependencies
+        working-directory: ./mycosmetics_server
+        run: dart pub get
       - name: Generate Serverpod client
         working-directory: ./mycosmetics_server
         run: dart pub global run serverpod_cli generate
@@ -164,6 +175,9 @@ jobs:
         with: { sdk: stable }
       - name: Activate serverpod_cli
         run: dart pub global activate serverpod_cli 2.9.3
+      - name: Install server dependencies
+        working-directory: ./mycosmetics_server
+        run: dart pub get
       - name: Generate Serverpod client
         working-directory: ./mycosmetics_server
         run: dart pub global run serverpod_cli generate
