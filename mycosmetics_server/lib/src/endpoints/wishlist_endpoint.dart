@@ -1,42 +1,39 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/business/order_service.dart';
+import 'package:mycosmetics_server/src/business/wishlist_service.dart';
 import 'package:mycosmetics_server/src/utils/auth_guard.dart';
 
-class OrderEndpoint extends Endpoint {
-  final OrderService _orders = OrderService();
+class WishlistEndpoint extends Endpoint {
+  final WishlistService _wishlist = WishlistService();
 
-  Future<OrderDetail> checkout(Session session, {required String token, required int addressId}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _orders.checkout(session, userId: user.id!, addressId: addressId);
+  Future<List<WishlistItemDetail>> list(Session session) async {
+    final user = await AuthGuard.requireUser(session);
+    return _wishlist.list(session, user.id!);
   }
 
-  Future<OrderDetail> getDetails(Session session, {required String token, required int orderId}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _orders.getDetails(session, userId: user.id!, orderId: orderId);
+  Future<WishlistItem> add(Session session, {required int productId}) async {
+    final user = await AuthGuard.requireUser(session);
+    return _wishlist.add(session, userId: user.id!, productId: productId);
   }
 
-  Future<List<Order>> listMyOrders(Session session, {required String token, int page = 0, int pageSize = 20}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _orders.listForUser(session, userId: user.id!, page: page, pageSize: pageSize);
+  Future<void> remove(Session session, {required int wishlistItemId}) async {
+    final user = await AuthGuard.requireUser(session);
+    await _wishlist.remove(session, userId: user.id!, wishlistItemId: wishlistItemId);
   }
 
-  Future<OrderDetail> cancel(Session session, {required String token, required int orderId, String? reason}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _orders.cancel(session, userId: user.id!, orderId: orderId, reason: reason);
-  }
-
-  /// Admin/staff only \u2014 drives order status forward (Order Tracking is the
-  /// read side of this same state machine, exposed to customers via
-  /// getDetails().statusHistory).
-  Future<OrderDetail> updateStatus(
+  Future<CartSummary> moveToCart(
     Session session, {
-    required String token,
-    required int orderId,
-    required OrderStatus newStatus,
-    String? note,
+    required int wishlistItemId,
+    required int variantId,
+    int quantity = 1,
   }) async {
-    await AuthGuard.requireAdminOrStaff(session, token);
-    return _orders.updateStatus(session, orderId: orderId, newStatus: newStatus, note: note);
+    final user = await AuthGuard.requireUser(session);
+    return _wishlist.moveToCart(
+      session,
+      userId: user.id!,
+      wishlistItemId: wishlistItemId,
+      variantId: variantId,
+      quantity: quantity,
+    );
   }
 }

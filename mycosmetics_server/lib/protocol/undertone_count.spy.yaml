@@ -1,0 +1,5 @@
+class: UndertoneCount
+fields:
+  undertone: String
+  count: int
+  percentage: double

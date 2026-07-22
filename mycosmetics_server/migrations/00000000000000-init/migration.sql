@@ -1,31 +1,43 @@
-import 'package:crypt/crypt.dart';
+-- Migration: 00000000000000-init.sql
+-- Reconstructed: this file previously contained stray Dart source
+-- (a PasswordService class, relocated to lib/src/utils/password_service.dart).
+-- Real SQL rebuilt from FK references across every later migration/model:
+-- users (referenced by skin_profiles, password_reset_tokens, addresses,
+-- wishlist_items, carts, orders, reviews, audit_logs, etc.) and addresses
+-- (referenced by orders.addressId). NOTE: categories is intentionally NOT
+-- created here -- it is already correctly created in
+-- 00000000000001-catalog/migration.sql (reconstructed from the SQL that had
+-- been misfiled into catalog_dto.spy.yaml), alongside brands/products which
+-- reference it. Creating it twice would collide with that migration.
 
-/// Centralizes password hashing so no endpoint ever rolls its own crypto.
-class PasswordService {
-  static const int _rounds = 12;
+CREATE TABLE "users" (
+  "id" bigserial PRIMARY KEY,
+  "email" text NOT NULL,
+  "passwordHash" text NOT NULL,
+  "fullName" text NOT NULL,
+  "role" text NOT NULL DEFAULT 'customer',
+  "avatarUrl" text,
+  "createdAt" timestamp without time zone NOT NULL,
+  "updatedAt" timestamp without time zone NOT NULL,
+  "deletedAt" timestamp without time zone
+);
+-- Partial unique index: soft-deleted users must not permanently squat an
+-- email address (same reasoning later reused for products_slug_idx).
+CREATE UNIQUE INDEX "users_email_idx" ON "users" ("email") WHERE "deletedAt" IS NULL;
 
-  static String hash(String plainPassword) {
-    return Crypt.sha256(plainPassword, rounds: _rounds).toString();
-  }
-
-  static bool verify(String plainPassword, String storedHash) {
-    try {
-      return Crypt(storedHash).match(plainPassword);
-    } catch (_) {
-      // Malformed hash should never crash auth; treat as failed match.
-      return false;
-    }
-  }
-
-  /// Basic policy: 8+ chars, at least one letter and one digit.
-  static String? validateStrength(String plainPassword) {
-    if (plainPassword.length < 8) {
-      return 'Password must be at least 8 characters.';
-    }
-    if (!RegExp(r'[A-Za-z]').hasMatch(plainPassword) ||
-        !RegExp(r'[0-9]').hasMatch(plainPassword)) {
-      return 'Password must contain letters and numbers.';
-    }
-    return null;
-  }
-}
+CREATE TABLE "addresses" (
+  "id" bigserial PRIMARY KEY,
+  "userId" bigint NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+  "fullName" text NOT NULL,
+  "phone" text NOT NULL,
+  "line1" text NOT NULL,
+  "line2" text,
+  "city" text NOT NULL,
+  "state" text,
+  "postalCode" text,
+  "country" text NOT NULL,
+  "isDefault" boolean NOT NULL DEFAULT false,
+  "createdAt" timestamp without time zone NOT NULL,
+  "updatedAt" timestamp without time zone NOT NULL
+);
+CREATE INDEX "addresses_user_idx" ON "addresses" ("userId");

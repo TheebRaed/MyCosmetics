@@ -24,6 +24,15 @@ pubspec.lock
 mycosmetics_server/lib/src/generated/
 mycosmetics_server/generated/
 
+# ── Client generated (regenerate via `serverpod generate`) ───────
+mycosmetics_client/
+
+# ── Flutter platform scaffolding (machine/build-generated) ───────
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/ios/Flutter/Generated.xcconfig
+**/ios/Runner/GeneratedPluginRegistrant.*
+
 # ── Backups (never commit DB dumps) ─────────────────────────────
 backups/*.sql.gz
 backups/*.dump

@@ -1,99 +1,70 @@
-import 'package:serverpod/serverpod.dart';
-import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/repositories/category_repository.dart';
-import 'package:mycosmetics_server/src/utils/catalog_validator.dart';
+class CatalogValidationException implements Exception {
+  final String message;
+  CatalogValidationException(this.message);
+  @override
+  String toString() => message;
+}
 
-class CategoryService {
-  final CategoryRepository _categories = CategoryRepository();
+class CatalogValidator {
+  static final _slugPattern = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
+  static final _hexColorPattern = RegExp(r'^#[0-9A-Fa-f]{6}$');
 
-  Future<List<Category>> listTopLevel(Session session) {
-    return _categories.listTopLevel(session);
+  static void requireNonEmpty(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      throw CatalogValidationException('$fieldName is required.');
+    }
   }
 
-  Future<List<Category>> listSubCategories(Session session, int parentId) {
-    return _categories.listSubCategories(session, parentId);
+  static void validateSlug(String slug) {
+    if (!_slugPattern.hasMatch(slug)) {
+      throw CatalogValidationException(
+        'Slug must be lowercase letters, numbers, and hyphens only (e.g. "matte-lipstick").',
+      );
+    }
   }
 
-  Future<Category> create(
-    Session session, {
-    required String name,
-    required String slug,
-    int? parentId,
-    String? imageUrl,
-    int sortOrder = 0,
-  }) async {
-    CatalogValidator.requireNonEmpty(name, 'Category name');
-    CatalogValidator.validateSlug(slug);
-    CatalogValidator.validateUrl(imageUrl, 'Category image URL');
-
-    final existingSlug = await _categories.findBySlug(session, slug);
-    if (existingSlug != null) {
-      throw CatalogValidationException('A category with this slug already exists.');
+  static void validatePrice(double price, {String fieldName = 'Price'}) {
+    if (price.isNaN || price.isInfinite || price < 0) {
+      throw CatalogValidationException('$fieldName must be a non-negative number.');
     }
-
-    if (parentId != null) {
-      final parent = await _categories.findById(session, parentId);
-      if (parent == null) {
-        throw CatalogValidationException('Parent category not found.');
-      }
-      // Enforce a single level of nesting (Category -> SubCategory only),
-      // matching the documented Phase 2 scope even though the schema
-      // technically allows deeper trees.
-      if (parent.parentId != null) {
-        throw CatalogValidationException('Sub-categories cannot have their own sub-categories.');
-      }
+    if (price > 1000000) {
+      throw CatalogValidationException('$fieldName exceeds the maximum allowed value.');
     }
-
-    final now = DateTime.now().toUtc();
-    return _categories.create(
-      session,
-      Category(
-        parentId: parentId,
-        name: name.trim(),
-        slug: slug,
-        imageUrl: imageUrl,
-        sortOrder: sortOrder,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      ),
-    );
   }
 
-  Future<Category> update(
-    Session session, {
-    required int id,
-    String? name,
-    String? imageUrl,
-    int? sortOrder,
-    bool? isActive,
-  }) async {
-    final existing = await _categories.findById(session, id);
-    if (existing == null) throw CatalogValidationException('Category not found.');
-    if (imageUrl != null) CatalogValidator.validateUrl(imageUrl, 'Category image URL');
-
-    return _categories.update(
-      session,
-      existing.copyWith(
-        name: name?.trim() ?? existing.name,
-        imageUrl: imageUrl ?? existing.imageUrl,
-        sortOrder: sortOrder ?? existing.sortOrder,
-        isActive: isActive ?? existing.isActive,
-        updatedAt: DateTime.now().toUtc(),
-      ),
-    );
+  static void validateStock(int stockQty) {
+    if (stockQty < 0) {
+      throw CatalogValidationException('Stock quantity cannot be negative.');
+    }
   }
 
-  Future<void> delete(Session session, int id) async {
-    final existing = await _categories.findById(session, id);
-    if (existing == null) throw CatalogValidationException('Category not found.');
+  static void validateHexColor(String? hex) {
+    if (hex == null) return;
+    if (!_hexColorPattern.hasMatch(hex)) {
+      throw CatalogValidationException('hexColor must be a 6-digit hex code, e.g. "#C2185B".');
+    }
+  }
 
-    if (await _categories.hasChildren(session, id)) {
-      throw CatalogValidationException('Cannot delete a category that has sub-categories.');
+  static void validateRating(double rating) {
+    if (rating < 0 || rating > 5) {
+      throw CatalogValidationException('Rating must be between 0 and 5.');
     }
-    if (await _categories.hasProducts(session, id)) {
-      throw CatalogValidationException('Cannot delete a category that has products. Deactivate it instead.');
+  }
+
+  static void validatePagination(int page, int pageSize) {
+    if (page < 0) {
+      throw CatalogValidationException('Page must be 0 or greater.');
     }
-    await _categories.delete(session, id);
+    if (pageSize < 1 || pageSize > 100) {
+      throw CatalogValidationException('Page size must be between 1 and 100.');
+    }
+  }
+
+  static void validateUrl(String? url, String fieldName) {
+    if (url == null) return;
+    final uri = Uri.tryParse(url);
+    if (uri == null || !(uri.isScheme('HTTP') || uri.isScheme('HTTPS'))) {
+      throw CatalogValidationException('$fieldName must be a valid http(s) URL.');
+    }
   }
 }

@@ -1,0 +1,8 @@
+enum: RecommendationEventType
+serialized: byName
+values:
+  - viewed
+  - triedOn
+  - addedToCart
+  - purchased
+  - dismissed

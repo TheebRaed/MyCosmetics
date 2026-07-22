@@ -1,25 +1,15 @@
-enum: ProductSortBy
-serialized: byName
-values:
-  - newest
-  - priceLowToHigh
-  - priceHighToLow
-  - ratingHighToLow
-  - bestSelling
-
-### Composed read-model returned by product details / list endpoints so the
-### client never has to issue follow-up calls for variants/images.
-class: ProductDetail
+### variantId is nullable: null means the image applies to the product
+### generally (e.g. hero shot); set means it's specific to one shade/variant.
+class: ProductImage
+table: product_images
 fields:
-  product: Product
-  variants: List<ProductVariant>
-  images: List<ProductImage>
-  brandName: String
-  categoryName: String
-
-class: ProductListResult
-fields:
-  items: List<ProductDetail>
-  totalCount: int
-  page: int
-  pageSize: int
+  productId: int, relation(parent=products, onDelete=Cascade)
+  variantId: int?, relation(parent=product_variants, onDelete=Cascade)
+  url: String
+  sortOrder: int, default=0
+  createdAt: DateTime
+indexes:
+  product_images_product_idx:
+    fields: productId
+  product_images_variant_idx:
+    fields: variantId

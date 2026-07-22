@@ -1,31 +1,63 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/business/product_image_service.dart';
+import 'package:mycosmetics_server/src/business/product_variant_service.dart';
 import 'package:mycosmetics_server/src/utils/auth_guard.dart';
 
-class ProductImageEndpoint extends Endpoint {
-  final ProductImageService _images = ProductImageService();
+class ProductVariantEndpoint extends Endpoint {
+  final ProductVariantService _variants = ProductVariantService();
 
-  Future<List<ProductImage>> listForProduct(Session session, {required int productId}) {
-    return _images.listForProduct(session, productId);
+  Future<List<ProductVariant>> listForProduct(Session session, {required int productId}) {
+    return _variants.listForProduct(session, productId);
   }
 
-  /// Client uploads image bytes via Serverpod's file/storage API separately,
-  /// then calls this with the resulting public URL to attach it to the product.
-  Future<ProductImage> add(
+  Future<ProductVariant> create(
     Session session, {
-    required String token,
     required int productId,
-    required String url,
-    int? variantId,
-    int sortOrder = 0,
+    required String sku,
+    required double price,
+    String? shadeName,
+    String? hexColor,
+    String? size,
+    int stockQty = 0,
   }) async {
-    await AuthGuard.requireAdminOrStaff(session, token);
-    return _images.add(session, productId: productId, url: url, variantId: variantId, sortOrder: sortOrder);
+    await AuthGuard.requireAdminOrStaff(session);
+    return _variants.create(
+      session,
+      productId: productId,
+      sku: sku,
+      price: price,
+      shadeName: shadeName,
+      hexColor: hexColor,
+      size: size,
+      stockQty: stockQty,
+    );
   }
 
-  Future<void> delete(Session session, {required String token, required int id, required int productId}) async {
-    await AuthGuard.requireAdminOrStaff(session, token);
-    await _images.delete(session, id: id, productId: productId);
+  Future<ProductVariant> update(
+    Session session, {
+    required int id,
+    double? price,
+    int? stockQty,
+    String? shadeName,
+    String? hexColor,
+    String? size,
+    bool? isActive,
+  }) async {
+    await AuthGuard.requireAdminOrStaff(session);
+    return _variants.update(
+      session,
+      id: id,
+      price: price,
+      stockQty: stockQty,
+      shadeName: shadeName,
+      hexColor: hexColor,
+      size: size,
+      isActive: isActive,
+    );
+  }
+
+  Future<void> delete(Session session, {required int id}) async {
+    await AuthGuard.requireAdminOrStaff(session);
+    await _variants.delete(session, id);
   }
 }

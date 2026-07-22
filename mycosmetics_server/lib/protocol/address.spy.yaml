@@ -1,14 +1,21 @@
-class: SkinProfile
-table: skin_profiles
+### Reconstructed (was missing -- content had been overwritten by SkinProfile).
+### Referenced as relation(parent=addresses...) from Order, and as
+### shippingAddress: Address in the OrderDetail read-model DTO.
+class: Address
+table: addresses
 fields:
   userId: int, relation(parent=users, onDelete=Cascade)
-  skinToneHex: String?
-  undertone: String?
-  concerns: String?
-  scannedAt: DateTime?
+  fullName: String
+  phone: String
+  line1: String
+  line2: String?
+  city: String
+  state: String?
+  postalCode: String?
+  country: String
+  isDefault: bool, default=false
   createdAt: DateTime
   updatedAt: DateTime
 indexes:
-  skin_profiles_user_idx:
+  addresses_user_idx:
     fields: userId
-    unique: true

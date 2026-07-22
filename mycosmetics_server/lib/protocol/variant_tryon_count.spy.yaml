@@ -1,0 +1,7 @@
+class: VariantTryOnCount
+fields:
+  variantId: int
+  productName: String
+  shadeName: String?
+  hexColor: String?
+  count: int

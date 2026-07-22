@@ -1,4 +1,4 @@
-import 'package:serverpod/serverpod.dart';
+import 'package:serverpod/serverpod.dart' hide Order;
 import 'package:mycosmetics_server/src/generated/protocol.dart';
 import 'package:mycosmetics_server/src/business/payment_service.dart';
 import 'package:mycosmetics_server/src/business/shipping_service.dart';

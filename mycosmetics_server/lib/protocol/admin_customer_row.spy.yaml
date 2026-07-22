@@ -1,0 +1,12 @@
+class: AdminCustomerRow
+fields:
+  id: int
+  fullName: String
+  email: String
+  phone: String?
+  role: String
+  isActive: bool
+  orderCount: int
+  totalSpent: double
+  createdAt: String
+  lastActiveAt: String?

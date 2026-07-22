@@ -1,19 +1,37 @@
-class: ProductVariant
-table: product_variants
+### basePrice/ratingAvg/ratingCount are denormalized onto the product row
+### (rather than always computing from variants/reviews) so product list,
+### search, filter, and sort queries never need to join or aggregate at
+### read time. They're kept in sync by ProductService whenever a variant's
+### price changes or a review is added (review sync lands in Phase 3).
+### tryOnEnabled/aiRecommendationEnabled/discountPercent/discountExpiresAt
+### come from migration 00000000000005-admin-dashboard's ALTER TABLE products.
+class: Product
+table: products
 fields:
-  productId: int, relation(parent=products, onDelete=Cascade)
-  shadeName: String?
-  hexColor: String?
-  size: String?
-  sku: String
-  price: double
-  stockQty: int, default=0
+  categoryId: int, relation(parent=categories, onDelete=Restrict)
+  brandId: int, relation(parent=brands, onDelete=Restrict)
+  name: String
+  slug: String
+  description: String
+  basePrice: double
+  ratingAvg: double, default=0
+  ratingCount: int, default=0
+  isFeatured: bool, default=false
+  isBestSeller: bool, default=false
+  isNewArrival: bool, default=false
   isActive: bool, default=true
+  tryOnEnabled: bool, default=true
+  aiRecommendationEnabled: bool, default=true
+  discountPercent: double?
+  discountExpiresAt: DateTime?
   createdAt: DateTime
   updatedAt: DateTime
+  deletedAt: DateTime?
 indexes:
-  product_variants_sku_idx:
-    fields: sku
+  products_slug_idx:
+    fields: slug
     unique: true
-  product_variants_product_idx:
-    fields: productId
+  products_category_idx:
+    fields: categoryId
+  products_brand_idx:
+    fields: brandId

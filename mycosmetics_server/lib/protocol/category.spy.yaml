@@ -1,14 +1,19 @@
-class: Brand
-table: brands
+### Reconstructed from the raw SQL that had been misfiled into catalog_dto.spy.yaml
+### (CREATE TABLE categories ... parentId self-reference, name/slug/imageUrl/sortOrder/isActive).
+class: Category
+table: categories
 fields:
+  parentId: int?, relation(parent=categories, onDelete=Restrict)
   name: String
   slug: String
-  logoUrl: String?
-  description: String?
+  imageUrl: String?
+  sortOrder: int, default=0
   isActive: bool, default=true
   createdAt: DateTime
   updatedAt: DateTime
 indexes:
-  brands_slug_idx:
+  categories_slug_idx:
     fields: slug
     unique: true
+  categories_parent_idx:
+    fields: parentId

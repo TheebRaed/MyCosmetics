@@ -1,35 +1,10 @@
-enum: PaymentProvider
-serialized: byName
-values:
-  - stripe
-  - cod
-  - future
-
-enum: PaymentMethod
-serialized: byName
-values:
-  - card
-  - cash
-  - bankTransfer
-
-enum: PaymentStatus
-serialized: byName
-values:
-  - pending
-  - authorised
-  - captured
-  - failed
-  - refunded
-  - partialRefund
-  - cancelled
-
 class: Payment
 table: payments
 fields:
   orderId: int, relation(parent=orders, onDelete=Restrict)
   provider: PaymentProvider
   method: PaymentMethod
-  status: PaymentStatus, default=PaymentStatus.pending
+  status: PaymentStatus, default=pending
   amount: double
   currency: String, default='USD'
   providerRefId: String?

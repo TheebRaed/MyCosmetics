@@ -1,0 +1,8 @@
+class: CartSummary
+fields:
+  cartId: int
+  items: List<CartItemDetail>
+  subtotal: double
+  appliedCouponCode: String?
+  discountAmount: double
+  total: double

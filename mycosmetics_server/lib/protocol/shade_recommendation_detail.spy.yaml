@@ -1,0 +1,8 @@
+class: ShadeRecommendationDetail
+fields:
+  recommendation: ShadeRecommendation
+  variantName: String?
+  productName: String
+  hexColor: String?
+  imageUrl: String?
+  scoreBreakdown: ScoreBreakdown?

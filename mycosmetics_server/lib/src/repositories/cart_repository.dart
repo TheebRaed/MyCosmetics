@@ -1,32 +1,54 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
 
-class WishlistRepository {
-  Future<List<WishlistItem>> listForUser(Session session, int userId) {
-    return WishlistItem.db.find(
+class CartRepository {
+  Future<Cart?> findByUserId(Session session, int userId) {
+    return Cart.db.findFirstRow(session, where: (t) => t.userId.equals(userId));
+  }
+
+  Future<Cart> create(Session session, int userId) {
+    final now = DateTime.now().toUtc();
+    return Cart.db.insertRow(session, Cart(userId: userId, createdAt: now, updatedAt: now));
+  }
+
+  Future<Cart> getOrCreate(Session session, int userId) async {
+    final existing = await findByUserId(session, userId);
+    if (existing != null) return existing;
+    return create(session, userId);
+  }
+
+  Future<Cart> update(Session session, Cart cart) {
+    return Cart.db.updateRow(session, cart);
+  }
+
+  Future<List<CartItem>> listItems(Session session, int cartId) {
+    return CartItem.db.find(session, where: (t) => t.cartId.equals(cartId), orderBy: (t) => t.createdAt);
+  }
+
+  Future<CartItem?> findItem(Session session, int cartId, int variantId) {
+    return CartItem.db.findFirstRow(
       session,
-      where: (t) => t.userId.equals(userId),
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
+      where: (t) => t.cartId.equals(cartId) & t.variantId.equals(variantId),
     );
   }
 
-  Future<WishlistItem?> find(Session session, int userId, int productId) {
-    return WishlistItem.db.findFirstRow(
-      session,
-      where: (t) => t.userId.equals(userId) & t.productId.equals(productId),
-    );
+  Future<CartItem?> findItemById(Session session, int id) {
+    return CartItem.db.findById(session, id);
   }
 
-  Future<WishlistItem?> findById(Session session, int id) {
-    return WishlistItem.db.findById(session, id);
+  Future<CartItem> addItem(Session session, CartItem item) {
+    return CartItem.db.insertRow(session, item);
   }
 
-  Future<WishlistItem> add(Session session, WishlistItem item) {
-    return WishlistItem.db.insertRow(session, item);
+  Future<CartItem> updateItem(Session session, CartItem item) {
+    return CartItem.db.updateRow(session, item);
   }
 
-  Future<void> remove(Session session, {required int id, required int userId}) {
-    return WishlistItem.db.deleteWhere(session, where: (t) => t.id.equals(id) & t.userId.equals(userId));
+  Future<void> removeItem(Session session, int id) {
+    return CartItem.db.deleteWhere(session, where: (t) => t.id.equals(id));
+  }
+
+  Future<void> clearItems(Session session, int cartId) {
+    return CartItem.db.deleteWhere(session, where: (t) => t.cartId.equals(cartId));
   }
 }

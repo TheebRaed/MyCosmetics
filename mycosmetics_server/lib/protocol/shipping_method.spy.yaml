@@ -1,0 +1,15 @@
+class: ShippingMethod
+table: shipping_methods
+fields:
+  zoneId: int, relation(parent=shipping_zones, onDelete=Cascade)
+  name: String
+  description: String?
+  baseFee: double
+  freeAbove: double?
+  estimatedDays: int
+  isActive: bool, default=true
+  sortOrder: int, default=0
+  createdAt: DateTime
+indexes:
+  shipping_method_zone_idx:
+    fields: zoneId

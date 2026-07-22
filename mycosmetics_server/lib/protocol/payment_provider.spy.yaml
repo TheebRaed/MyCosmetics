@@ -1,0 +1,6 @@
+enum: PaymentProvider
+serialized: byName
+values:
+  - stripe
+  - cod
+  - future

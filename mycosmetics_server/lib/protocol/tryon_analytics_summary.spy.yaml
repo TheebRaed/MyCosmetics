@@ -1,0 +1,6 @@
+class: TryOnAnalyticsSummary
+fields:
+  totalSessions: int
+  totalShadeApplications: int
+  totalSavedLooks: int
+  topVariants: List<VariantTryOnCount>

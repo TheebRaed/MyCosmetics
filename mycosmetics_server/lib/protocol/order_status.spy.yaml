@@ -1,30 +1,13 @@
-### One cart per user, created lazily on first add. Not soft-deletable \u2014
-### a cart is a working-state object, not a record needing audit history.
-class: Cart
-table: carts
-fields:
-  userId: int, relation(parent=users, onDelete=Cascade)
-  createdAt: DateTime
-  updatedAt: DateTime
-indexes:
-  carts_user_idx:
-    fields: userId
-    unique: true
-
-### Snapshot of unitPrice is NOT stored here deliberately \u2014 cart_items always
-### reflect the variant's live price/stock so the cart screen shows current
-### reality. Price is only frozen into order_items at checkout time.
-class: CartItem
-table: cart_items
-fields:
-  cartId: int, relation(parent=carts, onDelete=Cascade)
-  variantId: int, relation(parent=product_variants, onDelete=Cascade)
-  quantity: int
-  createdAt: DateTime
-  updatedAt: DateTime
-indexes:
-  cart_items_cart_idx:
-    fields: cartId
-  cart_items_cart_variant_idx:
-    fields: cartId, variantId
-    unique: true
+### Reconstructed (was missing -- file had been overwritten by Cart+CartItem).
+### Referenced as `status: OrderStatus, default=OrderStatus.pending` in Order,
+### and as `status text NOT NULL DEFAULT 'pending'` in the shopping migration SQL.
+### Lifecycle matches the customer app's Orders feature list.
+enum: OrderStatus
+serialized: byName
+values:
+  - pending
+  - processing
+  - shipped
+  - delivered
+  - cancelled
+  - returned

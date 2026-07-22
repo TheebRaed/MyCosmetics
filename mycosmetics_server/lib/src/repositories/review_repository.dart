@@ -1,36 +1,50 @@
-class ShoppingValidationException implements Exception {
-  final String message;
-  ShoppingValidationException(this.message);
-  @override
-  String toString() => message;
-}
+import 'package:serverpod/serverpod.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart';
 
-class ShoppingValidator {
-  static void validateQuantity(int quantity) {
-    if (quantity < 1) {
-      throw ShoppingValidationException('Quantity must be at least 1.');
-    }
-    if (quantity > 50) {
-      throw ShoppingValidationException('Quantity exceeds the maximum allowed per item (50).');
-    }
+class ReviewRepository {
+  Future<List<Review>> listForProduct(Session session, int productId, {int page = 0, int pageSize = 20}) {
+    return Review.db.find(
+      session,
+      where: (t) => t.productId.equals(productId),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+      limit: pageSize,
+      offset: page * pageSize,
+    );
   }
 
-  static void validateRating(int rating) {
-    if (rating < 1 || rating > 5) {
-      throw ShoppingValidationException('Rating must be between 1 and 5.');
-    }
+  Future<Review?> findById(Session session, int id) {
+    return Review.db.findById(session, id);
   }
 
-  static void validateCouponCode(String code) {
-    if (code.trim().isEmpty) {
-      throw ShoppingValidationException('Coupon code is required.');
-    }
+  Future<Review?> findByUserAndOrderItem(Session session, int userId, int orderItemId) {
+    return Review.db.findFirstRow(
+      session,
+      where: (t) => t.userId.equals(userId) & t.orderItemId.equals(orderItemId),
+    );
   }
 
-  static void validatePagination(int page, int pageSize) {
-    if (page < 0) throw ShoppingValidationException('Page must be 0 or greater.');
-    if (pageSize < 1 || pageSize > 100) {
-      throw ShoppingValidationException('Page size must be between 1 and 100.');
-    }
+  Future<Review> create(Session session, Review review) {
+    return Review.db.insertRow(session, review);
+  }
+
+  Future<Review> update(Session session, Review review) {
+    return Review.db.updateRow(session, review);
+  }
+
+  Future<void> delete(Session session, {required int id, required int userId}) {
+    return Review.db.deleteWhere(session, where: (t) => t.id.equals(id) & t.userId.equals(userId));
+  }
+
+  /// Single aggregate query (COUNT + AVG in one round trip) rather than
+  /// fetching every review row and averaging in Dart — scales correctly
+  /// as review counts grow into the thousands per product.
+  Future<({double avg, int count})> aggregateForProduct(Session session, int productId) async {
+    final rows = await session.db.unsafeQuery(
+      'SELECT COALESCE(AVG("rating"), 0) as avg, COUNT(*) as cnt FROM "reviews" WHERE "productId" = @productId',
+      parameters: QueryParameters.named({'productId': productId}),
+    );
+    final map = rows.first.toColumnMap();
+    return (avg: (map['avg'] as num).toDouble(), count: map['cnt'] as int);
   }
 }

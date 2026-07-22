@@ -1,49 +1,21 @@
-### Money fields are all frozen at checkout time and never recomputed from
-### live product/variant data afterward \u2014 an order is a historical record,
-### not a live view. couponId is kept (nullable) for traceability even
-### though discountAmount is what actually matters for the order total.
-class: Order
-table: orders
+### usedCount is incremented atomically at order-creation time, not at
+### apply-time, so a coupon "applied" to an abandoned cart never consumes
+### its usage limit.
+class: Coupon
+table: coupons
 fields:
-  userId: int, relation(parent=users, onDelete=Restrict)
-  addressId: int, relation(parent=addresses, onDelete=Restrict)
-  couponId: int?, relation(parent=coupons, onDelete=SetNull)
-  status: OrderStatus, default=OrderStatus.pending
-  subtotal: double
-  discountAmount: double, default=0
-  total: double
+  code: String
+  type: CouponType
+  value: double
+  minSpend: double, default=0
+  maxDiscount: double?
+  usageLimit: int?
+  usedCount: int, default=0
+  expiresAt: DateTime?
+  isActive: bool, default=true
   createdAt: DateTime
   updatedAt: DateTime
 indexes:
-  orders_user_idx:
-    fields: userId
-  orders_status_idx:
-    fields: status
-
-### unitPrice/variant attributes are snapshotted at order time (not joined
-### live from product_variants) so historical orders display correctly
-### even if the product/variant is later edited, repriced, or deleted.
-class: OrderItem
-table: order_items
-fields:
-  orderId: int, relation(parent=orders, onDelete=Cascade)
-  variantId: int, relation(parent=product_variants, onDelete=Restrict)
-  productNameSnapshot: String
-  shadeNameSnapshot: String?
-  unitPrice: double
-  quantity: int
-  lineTotal: double
-indexes:
-  order_items_order_idx:
-    fields: orderId
-
-class: OrderStatusHistory
-table: order_status_history
-fields:
-  orderId: int, relation(parent=orders, onDelete=Cascade)
-  status: OrderStatus
-  note: String?
-  createdAt: DateTime
-indexes:
-  order_status_history_order_idx:
-    fields: orderId
+  coupons_code_idx:
+    fields: code
+    unique: true

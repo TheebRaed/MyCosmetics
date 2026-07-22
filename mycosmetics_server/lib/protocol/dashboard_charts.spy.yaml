@@ -1,0 +1,7 @@
+class: DashboardCharts
+fields:
+  dailySales: List<SalesDataPoint>
+  monthlySales: List<SalesDataPoint>
+  revenueByCategory: List<SalesDataPoint>
+  revenueByBrand: List<SalesDataPoint>
+  userGrowth: List<SalesDataPoint>

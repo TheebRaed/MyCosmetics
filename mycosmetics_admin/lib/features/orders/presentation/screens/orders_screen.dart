@@ -56,7 +56,7 @@ class OrdersScreen extends ConsumerWidget {
     if (next.isEmpty) return AdminStatusBadge(label: current.toUpperCase(), color: statusColor(current));
     return DropdownButton<String>(
       value: current, underline: const SizedBox.shrink(),
-      items: [current, ...next].map((s) => DropdownMenuItem(value: s, child: AdminStatusBadge(label: s.toUpperCase(), color: statusColor(s)))).toList(),
+      items: [current, ...next].map((s) => DropdownMenuItem<String>(value: s, child: AdminStatusBadge(label: s.toUpperCase(), color: statusColor(s)))).toList(),
       onChanged: (v) async {
         if (v == null || v == current) return;
         await ref.read(adminRepositoryProvider).updateOrderStatus(orderId, v);

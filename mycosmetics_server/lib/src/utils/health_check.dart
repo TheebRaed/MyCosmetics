@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:serverpod/serverpod.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart';
 
 /// Health check endpoint data for Docker + load balancer readiness probes.
 ///
@@ -22,10 +23,14 @@ class HealthCheck {
 
     // ── Redis ──────────────────────────────────────────────────────────────
     try {
-      await session.caches.global.put('health:ping', 'pong', lifetime: const Duration(seconds: 10));
-      final val = await session.caches.global.get<String>('health:ping');
-      results['redis'] = val == 'pong' ? 'ok' : 'unexpected response';
-      if (val != 'pong') healthy = false;
+      await session.caches.global.put(
+        'health:ping',
+        CachedString(value: 'pong'),
+        lifetime: const Duration(seconds: 10),
+      );
+      final cached = await session.caches.global.get<CachedString>('health:ping');
+      results['redis'] = cached?.value == 'pong' ? 'ok' : 'unexpected response';
+      if (cached?.value != 'pong') healthy = false;
     } catch (e) {
       results['redis'] = 'error: $e';
       healthy = false;
@@ -33,7 +38,7 @@ class HealthCheck {
 
     // ── Disk space ─────────────────────────────────────────────────────────
     try {
-      final stat = await FileStat.stat('/tmp');
+      await FileStat.stat('/tmp');
       results['disk'] = 'ok';
     } catch (e) {
       results['disk'] = 'unknown';

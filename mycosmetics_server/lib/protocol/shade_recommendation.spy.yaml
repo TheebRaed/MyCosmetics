@@ -1,0 +1,25 @@
+### Reconstructed (was missing entirely -- referenced by beautytech_dto.spy.yaml's
+### ShadeRecommendationDetail.recommendation field, and by recommendation_event.spy.yaml's
+### relation(parent=shade_recommendations...)). Fields rebuilt from the
+### migrations/00000000000003-beautytech and 00000000000004-ai-intelligence SQL.
+class: ShadeRecommendation
+table: shade_recommendations
+fields:
+  userId: int, relation(parent=users, onDelete=Cascade)
+  skinProfileId: int, relation(parent=skin_profiles, onDelete=Cascade)
+  productVariantId: int, relation(parent=product_variants, onDelete=Cascade)
+  historyId: int?, relation(parent=recommendation_history, onDelete=SetNull)
+  category: String
+  confidenceScore: double
+  reason: String
+  scoreSkinTone: double?
+  scoreUndertone: double?
+  scorePopularity: double?
+  scoreUserPreference: double?
+  scoreTryOnActivity: double?
+  createdAt: DateTime
+indexes:
+  shade_rec_user_idx:
+    fields: userId
+  shade_rec_profile_idx:
+    fields: skinProfileId

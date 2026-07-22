@@ -1,0 +1,7 @@
+class: RecommendationAnalyticsSummary
+fields:
+  totalRecommendationSessions: int
+  acceptanceRate: double
+  conversionRate: double
+  topRecommendedVariants: List<VariantTryOnCount>
+  commonUndertones: List<UndertoneCount>

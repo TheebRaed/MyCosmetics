@@ -1,58 +1,53 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/business/profile_service.dart';
-import 'package:mycosmetics_server/src/endpoints/auth_endpoint.dart';
+import 'package:mycosmetics_server/src/business/auth_service.dart';
+import 'package:mycosmetics_server/src/utils/session_service.dart';
 
-class ProfileEndpoint extends Endpoint {
-  final ProfileService _profile = ProfileService();
+class AuthEndpoint extends Endpoint {
+  final AuthService _auth = AuthService();
 
-  Future<int> _requireUserId(Session session, String token) async {
-    final userId = await AuthEndpoint().resolveSession(session, token: token);
-    if (userId == null) {
-      throw Exception('Unauthorized: invalid or expired session.');
-    }
-    return userId;
-  }
-
-  Future<User> getProfile(Session session, {required String token}) async {
-    final userId = await _requireUserId(session, token);
-    return _profile.getProfile(session, userId);
-  }
-
-  Future<User> updateProfile(
+  Future<AuthResult> register(
     Session session, {
-    required String token,
-    String? fullName,
-    String? phone,
+    required String email,
+    required String password,
+    required String fullName,
   }) async {
-    final userId = await _requireUserId(session, token);
-    return _profile.updateProfile(session, userId: userId, fullName: fullName, phone: phone);
+    return _auth.register(session, email: email, password: password, fullName: fullName);
   }
 
-  /// Client uploads avatar bytes via Serverpod's file/storage API separately,
-  /// then calls this with the resulting public URL to persist the reference.
-  Future<User> updateAvatarUrl(Session session, {required String token, required String avatarUrl}) async {
-    final userId = await _requireUserId(session, token);
-    return _profile.updateAvatarUrl(session, userId: userId, avatarUrl: avatarUrl);
+  Future<AuthResult> login(Session session, {required String email, required String password}) async {
+    return _auth.login(session, email: email, password: password);
   }
 
-  Future<List<Address>> listAddresses(Session session, {required String token}) async {
-    final userId = await _requireUserId(session, token);
-    return _profile.listAddresses(session, userId);
+  /// Requires the caller to pass the session token they received at login.
+  /// Token validity is checked by AuthGuard middleware logic (see endpoint base).
+  Future<void> logout(Session session, {required String token}) async {
+    await _auth.logout(session, token);
   }
 
-  Future<Address> addAddress(Session session, {required String token, required Address address}) async {
-    final userId = await _requireUserId(session, token);
-    return _profile.addAddress(session, address.copyWith(userId: userId));
+  Future<void> changePassword(
+    Session session, {
+    required int userId,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _auth.changePassword(session, userId: userId, currentPassword: currentPassword, newPassword: newPassword);
   }
 
-  Future<Address> updateAddress(Session session, {required String token, required Address address}) async {
-    final userId = await _requireUserId(session, token);
-    return _profile.updateAddress(session, userId: userId, address: address);
+  /// Always returns void/success regardless of whether the email exists,
+  /// to prevent account enumeration. Delivery of the reset token happens
+  /// entirely inside AuthService.requestPasswordReset via EmailService --
+  /// the raw token never reaches this endpoint or the response body.
+  Future<void> forgotPassword(Session session, {required String email}) async {
+    await _auth.requestPasswordReset(session, email);
   }
 
-  Future<void> deleteAddress(Session session, {required String token, required int addressId}) async {
-    final userId = await _requireUserId(session, token);
-    await _profile.deleteAddress(session, userId: userId, addressId: addressId);
+  Future<void> resetPassword(Session session, {required String token, required String newPassword}) async {
+    await _auth.resetPassword(session, rawToken: token, newPassword: newPassword);
+  }
+
+  /// Helper for other endpoints/middleware to resolve a token to a userId.
+  Future<int?> resolveSession(Session session, {required String token}) async {
+    return SessionService.resolveUserId(session, token);
   }
 }

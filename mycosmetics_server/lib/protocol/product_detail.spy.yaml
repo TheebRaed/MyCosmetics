@@ -1,0 +1,9 @@
+### Composed read-model returned by product details / list endpoints so the
+### client never has to issue follow-up calls for variants/images.
+class: ProductDetail
+fields:
+  product: Product
+  variants: List<ProductVariant>
+  images: List<ProductImage>
+  brandName: String
+  categoryName: String

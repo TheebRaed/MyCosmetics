@@ -1,0 +1,10 @@
+class: OrderStatusHistory
+table: order_status_history
+fields:
+  orderId: int, relation(parent=orders, onDelete=Cascade)
+  status: OrderStatus
+  note: String?
+  createdAt: DateTime
+indexes:
+  order_status_history_order_idx:
+    fields: orderId

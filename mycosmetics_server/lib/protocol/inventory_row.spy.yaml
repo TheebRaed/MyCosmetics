@@ -1,0 +1,11 @@
+class: InventoryRow
+fields:
+  variantId: int
+  productId: int
+  productName: String
+  shadeName: String?
+  sku: String
+  stockQty: int
+  isActive: bool
+  isLowStock: bool
+  isOutOfStock: bool

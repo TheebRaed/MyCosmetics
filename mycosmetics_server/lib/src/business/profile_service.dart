@@ -1,57 +1,88 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/business/auth_service.dart';
-import 'package:mycosmetics_server/src/integrations/session_service.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart' hide UserRepository, AddressRepository;
+import 'package:mycosmetics_server/src/repositories/user_repository.dart';
+import 'package:mycosmetics_server/src/repositories/address_repository.dart';
 
-class AuthEndpoint extends Endpoint {
-  final AuthService _auth = AuthService();
+class ProfileException implements Exception {
+  final String message;
+  ProfileException(this.message);
+  @override
+  String toString() => message;
+}
 
-  Future<AuthResult> register(
-    Session session, {
-    required String email,
-    required String password,
-    required String fullName,
-    String? phone,
-  }) async {
-    return _auth.register(session, email: email, password: password, fullName: fullName, phone: phone);
+class ProfileService {
+  final UserRepository _users = UserRepository();
+  final AddressRepository _addresses = AddressRepository();
+
+  // Same hash-free projection AuthService uses for AuthResult -- passwordHash
+  // must never leave the service boundary. See auth_service.dart's
+  // _toAuthUser and auth_dto.spy.yaml's comment on AuthUser.
+  AuthUser _toAuthUser(User u) => AuthUser(
+        id: u.id!,
+        email: u.email,
+        fullName: u.fullName,
+        role: u.role,
+        avatarUrl: u.avatarUrl,
+      );
+
+  Future<AuthUser> getProfile(Session session, int userId) async {
+    final user = await _users.findById(session, userId);
+    if (user == null) throw ProfileException('User not found.');
+    return _toAuthUser(user);
   }
 
-  Future<AuthResult> login(Session session, {required String email, required String password}) async {
-    return _auth.login(session, email: email, password: password);
-  }
-
-  /// Requires the caller to pass the session token they received at login.
-  /// Token validity is checked by AuthGuard middleware logic (see endpoint base).
-  Future<void> logout(Session session, {required String token}) async {
-    await _auth.logout(session, token);
-  }
-
-  Future<void> changePassword(
+  Future<AuthUser> updateProfile(
     Session session, {
     required int userId,
-    required String currentPassword,
-    required String newPassword,
+    String? fullName,
   }) async {
-    await _auth.changePassword(session, userId: userId, currentPassword: currentPassword, newPassword: newPassword);
+    final user = await _users.findById(session, userId);
+    if (user == null) throw ProfileException('User not found.');
+    final updated = await _users.update(
+      session,
+      user.copyWith(
+        fullName: fullName?.trim() ?? user.fullName,
+        updatedAt: DateTime.now().toUtc(),
+      ),
+    );
+    return _toAuthUser(updated);
   }
 
-  /// Always returns void/success regardless of whether the email exists,
-  /// to prevent account enumeration. Actual email dispatch is a TODO
-  /// integration point (e.g. via a mail service) for a later phase.
-  Future<void> forgotPassword(Session session, {required String email}) async {
-    final rawToken = await _auth.requestPasswordReset(session, email);
-    if (rawToken != null) {
-      // TODO(Phase 4 or earlier): send rawToken via email/SMS provider.
-      session.log('Password reset token generated for $email (delivery not yet wired).');
+  Future<AuthUser> updateAvatarUrl(Session session, {required int userId, required String avatarUrl}) async {
+    final user = await _users.findById(session, userId);
+    if (user == null) throw ProfileException('User not found.');
+    final updated = await _users.update(session, user.copyWith(avatarUrl: avatarUrl, updatedAt: DateTime.now().toUtc()));
+    return _toAuthUser(updated);
+  }
+
+  Future<List<Address>> listAddresses(Session session, int userId) {
+    return _addresses.listForUser(session, userId);
+  }
+
+  Future<Address> addAddress(Session session, Address address) async {
+    if (address.isDefault) {
+      await _addresses.clearDefaultForUser(session, address.userId);
     }
+    final now = DateTime.now().toUtc();
+    return _addresses.create(session, address.copyWith(createdAt: now, updatedAt: now));
   }
 
-  Future<void> resetPassword(Session session, {required String token, required String newPassword}) async {
-    await _auth.resetPassword(session, rawToken: token, newPassword: newPassword);
+  Future<Address> updateAddress(Session session, {required int userId, required Address address}) async {
+    final existing = await _addresses.findById(session, address.id!);
+    if (existing == null || existing.userId != userId) {
+      throw ProfileException('Address not found.');
+    }
+    if (address.isDefault && !existing.isDefault) {
+      await _addresses.clearDefaultForUser(session, userId);
+    }
+    return _addresses.update(session, address.copyWith(userId: userId, updatedAt: DateTime.now().toUtc()));
   }
 
-  /// Helper for other endpoints/middleware to resolve a token to a userId.
-  Future<int?> resolveSession(Session session, {required String token}) async {
-    return SessionService.resolveUserId(session, token);
+  Future<void> deleteAddress(Session session, {required int userId, required int addressId}) async {
+    final existing = await _addresses.findById(session, addressId);
+    if (existing == null || existing.userId != userId) {
+      throw ProfileException('Address not found.');
+    }
+    await _addresses.delete(session, addressId);
   }
 }

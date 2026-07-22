@@ -1,12 +1,15 @@
-class: WishlistItem
-table: wishlist_items
+### One cart per user, created lazily on first add. Not soft-deletable --
+### a cart is a working-state object, not a record needing audit history.
+### appliedCouponId is present in the shopping migration SQL but had been
+### dropped from the model here -- restored to keep model/SQL in sync.
+class: Cart
+table: carts
 fields:
   userId: int, relation(parent=users, onDelete=Cascade)
-  productId: int, relation(parent=products, onDelete=Cascade)
+  appliedCouponId: int?, relation(parent=coupons, onDelete=SetNull)
   createdAt: DateTime
+  updatedAt: DateTime
 indexes:
-  wishlist_items_user_idx:
+  carts_user_idx:
     fields: userId
-  wishlist_items_user_product_idx:
-    fields: userId, productId
     unique: true

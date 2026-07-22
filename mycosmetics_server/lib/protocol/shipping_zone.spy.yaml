@@ -1,0 +1,10 @@
+class: ShippingZone
+table: shipping_zones
+fields:
+  name: String
+  countries: String
+  isActive: bool, default=true
+  createdAt: DateTime
+indexes:
+  shipping_zone_name_idx:
+    fields: name

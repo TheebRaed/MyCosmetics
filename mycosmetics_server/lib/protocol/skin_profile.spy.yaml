@@ -1,13 +1,14 @@
-### Short-lived single-use token for the forgot-password flow. tokenHash stored, never the raw token.
-class: PasswordResetToken
-table: password_reset_tokens
+class: SkinProfile
+table: skin_profiles
 fields:
   userId: int, relation(parent=users, onDelete=Cascade)
-  tokenHash: String
-  expiresAt: DateTime
-  usedAt: DateTime?
+  skinToneHex: String?
+  undertone: String?
+  concerns: String?
+  scannedAt: DateTime?
   createdAt: DateTime
+  updatedAt: DateTime
 indexes:
-  password_reset_tokens_hash_idx:
-    fields: tokenHash
+  skin_profiles_user_idx:
+    fields: userId
     unique: true

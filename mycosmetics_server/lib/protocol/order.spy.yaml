@@ -1,22 +1,26 @@
-### orderItemId is the enforcement mechanism for "only verified purchasers
-### can review": a review must reference the specific order_item the user
-### bought, and the service layer checks that order's status is Delivered.
-### unique(userId, orderItemId) stops the same purchase being reviewed twice
-### while still allowing a user to review the same product again from a
-### different order.
-class: Review
-table: reviews
+### Money fields are all frozen at checkout time and never recomputed from
+### live product/variant data afterward -- an order is a historical record,
+### not a live view. couponId is kept (nullable) for traceability even
+### though discountAmount is what actually matters for the order total.
+### paymentStatus/paymentId/trackingNumber come from migration
+### 00000000000006-production's ALTER TABLE orders.
+class: Order
+table: orders
 fields:
-  productId: int, relation(parent=products, onDelete=Cascade)
-  userId: int, relation(parent=users, onDelete=Cascade)
-  orderItemId: int, relation(parent=order_items, onDelete=Cascade)
-  rating: int
-  comment: String?
+  userId: int, relation(parent=users, onDelete=Restrict)
+  addressId: int, relation(parent=addresses, onDelete=Restrict)
+  couponId: int?, relation(parent=coupons, onDelete=SetNull)
+  status: OrderStatus, default=pending
+  paymentStatus: String, default='unpaid'
+  paymentId: int?
+  trackingNumber: String?
+  subtotal: double
+  discountAmount: double, default=0
+  total: double
   createdAt: DateTime
   updatedAt: DateTime
 indexes:
-  reviews_product_idx:
-    fields: productId
-  reviews_user_orderitem_idx:
-    fields: userId, orderItemId
-    unique: true
+  orders_user_idx:
+    fields: userId
+  orders_status_idx:
+    fields: status

@@ -1,0 +1,7 @@
+class: WishlistItemDetail
+fields:
+  wishlistItem: WishlistItem
+  productName: String
+  basePrice: double
+  imageUrl: String?
+  isInStock: bool

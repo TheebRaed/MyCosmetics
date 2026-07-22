@@ -1,0 +1,6 @@
+class: ProductListResult
+fields:
+  items: List<ProductDetail>
+  totalCount: int
+  page: int
+  pageSize: int

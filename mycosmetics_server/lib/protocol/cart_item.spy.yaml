@@ -1,0 +1,17 @@
+### Snapshot of unitPrice is NOT stored here deliberately -- cart_items always
+### reflect the variant's live price/stock so the cart screen shows current
+### reality. Price is only frozen into order_items at checkout time.
+class: CartItem
+table: cart_items
+fields:
+  cartId: int, relation(parent=carts, onDelete=Cascade)
+  variantId: int, relation(parent=product_variants, onDelete=Cascade)
+  quantity: int
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  cart_items_cart_idx:
+    fields: cartId
+  cart_items_cart_variant_idx:
+    fields: cartId, variantId
+    unique: true

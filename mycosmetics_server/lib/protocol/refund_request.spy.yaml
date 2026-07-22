@@ -1,11 +1,3 @@
-enum: RefundStatus
-serialized: byName
-values:
-  - pending
-  - approved
-  - rejected
-  - processed
-
 class: RefundRequest
 table: refund_requests
 fields:
@@ -14,7 +6,7 @@ fields:
   paymentId: int, relation(parent=payments, onDelete=Restrict)
   reason: String
   amount: double
-  status: RefundStatus, default=RefundStatus.pending
+  status: RefundStatus, default=pending
   adminNote: String?
   resolvedBy: int?
   resolvedAt: DateTime?

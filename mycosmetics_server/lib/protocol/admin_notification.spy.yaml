@@ -1,28 +1,12 @@
-enum: NotificationAudience
-serialized: byName
-values:
-  - allUsers
-  - selectedUsers
-  - byCategory
-  - byPurchaseHistory
-
-enum: NotificationStatus
-serialized: byName
-values:
-  - draft
-  - scheduled
-  - sent
-  - failed
-
 class: AdminNotification
 table: admin_notifications
 fields:
   adminId: int, relation(parent=users, onDelete=Restrict)
   title: String
   body: String
-  audience: NotificationAudience, default=NotificationAudience.allUsers
+  audience: NotificationAudience, default=allUsers
   audienceFilter: String?
-  status: NotificationStatus, default=NotificationStatus.draft
+  status: NotificationStatus, default=draft
   scheduledAt: DateTime?
   sentAt: DateTime?
   recipientCount: int, default=0

@@ -1,27 +1,12 @@
-enum: CouponType
-serialized: byName
-values:
-  - percentage
-  - fixedAmount
-
-### usedCount is incremented atomically at order-creation time, not at
-### apply-time, so a coupon "applied" to an abandoned cart never consumes
-### its usage limit.
-class: Coupon
-table: coupons
+class: WishlistItem
+table: wishlist_items
 fields:
-  code: String
-  type: CouponType
-  value: double
-  minSpend: double, default=0
-  maxDiscount: double?
-  usageLimit: int?
-  usedCount: int, default=0
-  expiresAt: DateTime?
-  isActive: bool, default=true
+  userId: int, relation(parent=users, onDelete=Cascade)
+  productId: int, relation(parent=products, onDelete=Cascade)
   createdAt: DateTime
-  updatedAt: DateTime
 indexes:
-  coupons_code_idx:
-    fields: code
+  wishlist_items_user_idx:
+    fields: userId
+  wishlist_items_user_product_idx:
+    fields: userId, productId
     unique: true

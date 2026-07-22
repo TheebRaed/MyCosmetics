@@ -1,0 +1,10 @@
+class: AdminOrderRow
+fields:
+  id: int
+  customerName: String
+  customerEmail: String
+  status: String
+  paymentStatus: String
+  total: double
+  itemCount: int
+  createdAt: String

@@ -1,0 +1,7 @@
+enum: RefundStatus
+serialized: byName
+values:
+  - pending
+  - approved
+  - rejected
+  - processed

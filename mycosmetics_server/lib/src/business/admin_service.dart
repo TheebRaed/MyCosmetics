@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
-import 'package:mycosmetics_server/src/generated/protocol.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart' hide UserRepository;
 import 'package:mycosmetics_server/src/repositories/admin_repository.dart';
 import 'package:mycosmetics_server/src/repositories/user_repository.dart';
 import 'package:mycosmetics_server/src/utils/secure_logging.dart';
@@ -100,7 +100,7 @@ class AdminService {
 
   Future<void> reactivateUser(Session session, {required int userId, required int adminId}) async {
     await session.db.transaction((tx) async {
-      await _repo.reactivateUser(session, userId, adminId, transaction: tx);
+      await _repo.reactivateUser(session, userId, transaction: tx);
       await _audit(session, adminId: adminId, action: 'reactivate_user', entity: 'users', entityId: userId, transaction: tx);
     });
   }

@@ -1,0 +1,7 @@
+enum: NotificationStatus
+serialized: byName
+values:
+  - draft
+  - scheduled
+  - sent
+  - failed

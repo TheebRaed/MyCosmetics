@@ -1,31 +1,14 @@
-### basePrice/ratingAvg/ratingCount are denormalized onto the product row
-### (rather than always computing from variants/reviews) so product list,
-### search, filter, and sort queries never need to join or aggregate at
-### read time. They're kept in sync by ProductService whenever a variant's
-### price changes or a review is added (review sync lands in Phase 3).
-class: Product
-table: products
+class: Brand
+table: brands
 fields:
-  categoryId: int, relation(parent=categories, onDelete=Restrict)
-  brandId: int, relation(parent=brands, onDelete=Restrict)
   name: String
   slug: String
-  description: String
-  basePrice: double
-  ratingAvg: double, default=0
-  ratingCount: int, default=0
-  isFeatured: bool, default=false
-  isBestSeller: bool, default=false
-  isNewArrival: bool, default=false
+  logoUrl: String?
+  description: String?
   isActive: bool, default=true
   createdAt: DateTime
   updatedAt: DateTime
-  deletedAt: DateTime?
 indexes:
-  products_slug_idx:
+  brands_slug_idx:
     fields: slug
     unique: true
-  products_category_idx:
-    fields: categoryId
-  products_brand_idx:
-    fields: brandId

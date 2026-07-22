@@ -1,0 +1,6 @@
+enum: PaymentMethod
+serialized: byName
+values:
+  - card
+  - cash
+  - bankTransfer

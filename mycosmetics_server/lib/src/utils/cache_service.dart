@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart';
 
 /// Redis-backed caching service.
 ///
@@ -13,6 +14,10 @@ import 'package:serverpod/serverpod.dart';
 ///   - Dashboard KPIs:  2 minutes (refreshed frequently)
 ///   - Analytics views: 10 minutes (expensive aggregations)
 ///   - User-specific:   No caching (always fresh)
+///
+/// Uses Session.caches.global (Serverpod's built-in Redis-backed cache),
+/// wrapping JSON-encoded values in CachedString since Cache.get/put<T>
+/// require a SerializableModel, not a raw String.
 class CacheService {
   static const _catalogTtl   = Duration(minutes: 5);
   static const _dashboardTtl = Duration(minutes: 2);
@@ -26,9 +31,9 @@ class CacheService {
     T Function(dynamic) fromJson,
   ) async {
     try {
-      final raw = await session.caches.global.get<String>(key);
-      if (raw == null) return null;
-      return fromJson(jsonDecode(raw));
+      final cached = await session.caches.global.get<CachedString>(key);
+      if (cached == null) return null;
+      return fromJson(jsonDecode(cached.value));
     } catch (_) {
       return null; // Cache miss or decode error — always fall through to DB
     }
@@ -43,7 +48,7 @@ class CacheService {
     try {
       await session.caches.global.put(
         key,
-        jsonEncode(value),
+        CachedString(value: jsonEncode(value)),
         lifetime: ttl,
       );
     } catch (_) {

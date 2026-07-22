@@ -1,0 +1,5 @@
+class: SalesDataPoint
+fields:
+  label: String
+  revenue: double
+  orderCount: int

@@ -1,0 +1,5 @@
+enum: CouponType
+serialized: byName
+values:
+  - percentage
+  - fixedAmount

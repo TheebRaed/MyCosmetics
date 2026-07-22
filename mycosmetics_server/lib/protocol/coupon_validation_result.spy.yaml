@@ -1,0 +1,5 @@
+class: CouponValidationResult
+fields:
+  isValid: bool
+  message: String
+  discountAmount: double

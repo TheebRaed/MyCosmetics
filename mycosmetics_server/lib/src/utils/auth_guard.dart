@@ -1,6 +1,6 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/integrations/session_service.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart' hide UserRepository;
+import 'package:mycosmetics_server/src/utils/session_service.dart';
 import 'package:mycosmetics_server/src/repositories/user_repository.dart';
 
 class UnauthorizedException implements Exception {
@@ -24,13 +24,15 @@ const Map<UserRole, Set<String>> _rolePermissions = {
   UserRole.admin: {'products:read','products:write','products:delete','orders:read','orders:update','orders:cancel','customers:read','customers:write','customers:support','inventory:read','inventory:write','coupons:read','coupons:write','coupons:delete','notifications:write','reports:read','reports:export','analytics:read','audit:read','brands:write','categories:write','payments:read','refunds:write'},
 };
 
+/// Serverpod exposes the caller's bearer token via `Session.authenticationKey`
+/// (populated from the `auth` query parameter / auth header by the framework
+/// itself) on the base [Session] class -- so this works uniformly across
+/// MethodCallSession, streaming sessions, etc., unlike reading
+/// `session.httpRequest` directly (which only exists on MethodCallSession).
 String? _extractToken(Session session) {
-  try {
-    final h = session.httpRequest.headers['authorization']?.first ?? session.httpRequest.headers['Authorization']?.first;
-    if (h == null || !h.startsWith('Bearer ')) return null;
-    final t = h.substring(7).trim();
-    return t.isEmpty ? null : t;
-  } catch (_) { return null; }
+  final key = session.authenticationKey;
+  if (key == null || key.trim().isEmpty) return null;
+  return key.trim();
 }
 
 class AuthGuard {

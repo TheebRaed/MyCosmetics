@@ -1,0 +1,6 @@
+class: OrderDetail
+fields:
+  order: Order
+  items: List<OrderItem>
+  statusHistory: List<OrderStatusHistory>
+  shippingAddress: Address

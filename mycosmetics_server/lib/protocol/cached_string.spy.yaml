@@ -1,0 +1,7 @@
+### Serverpod's Cache.get/put<T> require T to be a SerializableModel -- plain
+### String does not qualify. This is the minimal wrapper so session tokens,
+### cached JSON blobs, and health-check pings can still ride the framework's
+### built-in Redis-backed global cache instead of a hand-rolled redis client.
+class: CachedString
+fields:
+  value: String

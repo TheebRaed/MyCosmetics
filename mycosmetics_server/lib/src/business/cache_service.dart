@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart';
 
 /// Redis-backed caching layer for high-traffic read endpoints.
 ///
@@ -15,6 +16,10 @@ import 'package:serverpod/serverpod.dart';
 ///   brand:list:all
 ///   dashboard:kpis
 ///   recommendation:user:{userId}
+///
+/// Uses Session.caches.global (Serverpod's built-in Redis-backed cache),
+/// wrapping values in CachedString since Cache.get/put<T> require a
+/// SerializableModel, not a raw String/int.
 class CacheService {
   static const _defaultTtl   = Duration(minutes: 5);
   static const _longTtl      = Duration(minutes: 30);
@@ -25,13 +30,14 @@ class CacheService {
 
   Future<String?> get(Session session, String key) async {
     try {
-      return await session.caches.global.get<String>(key);
+      final cached = await session.caches.global.get<CachedString>(key);
+      return cached?.value;
     } catch (_) { return null; }
   }
 
   Future<void> set(Session session, String key, String value, {Duration? ttl}) async {
     try {
-      await session.caches.global.put(key, value, lifetime: ttl ?? _defaultTtl);
+      await session.caches.global.put(key, CachedString(value: value), lifetime: ttl ?? _defaultTtl);
     } catch (_) {}
   }
 
@@ -47,14 +53,16 @@ class CacheService {
     // and include it in the cache key so old entries become unreachable.
     try {
       final vKey = 'version:$prefix';
-      final current = await session.caches.global.get<int>(vKey) ?? 0;
-      await session.caches.global.put(vKey, current + 1, lifetime: const Duration(days: 7));
+      final current = await _version(session, prefix);
+      await session.caches.global.put(vKey, CachedString(value: (current + 1).toString()), lifetime: const Duration(days: 7));
     } catch (_) {}
   }
 
   Future<int> _version(Session session, String prefix) async {
-    try { return await session.caches.global.get<int>('version:$prefix') ?? 0; }
-    catch (_) { return 0; }
+    try {
+      final cached = await session.caches.global.get<CachedString>('version:$prefix');
+      return cached == null ? 0 : int.tryParse(cached.value) ?? 0;
+    } catch (_) { return 0; }
   }
 
   // ── Product cache ─────────────────────────────────────────────────────────
@@ -93,4 +101,8 @@ class CacheService {
 
   Future<void> invalidateUserRecommendations(Session session, int userId) =>
       invalidate(session, recommendationKey(userId));
+
+  /// Exposed so callers can build user-scoped keys with the same TTL policy
+  /// this class uses internally.
+  Duration get userTtl => _userTtl;
 }

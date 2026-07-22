@@ -1,40 +1,33 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/business/wishlist_service.dart';
+import 'package:mycosmetics_server/src/business/cart_service.dart';
 import 'package:mycosmetics_server/src/utils/auth_guard.dart';
 
-class WishlistEndpoint extends Endpoint {
-  final WishlistService _wishlist = WishlistService();
+class CartEndpoint extends Endpoint {
+  final CartService _cart = CartService();
 
-  Future<List<WishlistItemDetail>> list(Session session, {required String token}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _wishlist.list(session, user.id!);
+  Future<CartSummary> getCart(Session session) async {
+    final user = await AuthGuard.requireUser(session);
+    return _cart.getCart(session, user.id!);
   }
 
-  Future<WishlistItem> add(Session session, {required String token, required int productId}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _wishlist.add(session, userId: user.id!, productId: productId);
+  Future<CartSummary> addItem(Session session, {required int variantId, required int quantity}) async {
+    final user = await AuthGuard.requireUser(session);
+    return _cart.addItem(session, userId: user.id!, variantId: variantId, quantity: quantity);
   }
 
-  Future<void> remove(Session session, {required String token, required int wishlistItemId}) async {
-    final user = await AuthGuard.requireUser(session, token);
-    await _wishlist.remove(session, userId: user.id!, wishlistItemId: wishlistItemId);
+  Future<CartSummary> updateQuantity(Session session, {required int cartItemId, required int quantity}) async {
+    final user = await AuthGuard.requireUser(session);
+    return _cart.updateQuantity(session, userId: user.id!, cartItemId: cartItemId, quantity: quantity);
   }
 
-  Future<CartSummary> moveToCart(
-    Session session, {
-    required String token,
-    required int wishlistItemId,
-    required int variantId,
-    int quantity = 1,
-  }) async {
-    final user = await AuthGuard.requireUser(session, token);
-    return _wishlist.moveToCart(
-      session,
-      userId: user.id!,
-      wishlistItemId: wishlistItemId,
-      variantId: variantId,
-      quantity: quantity,
-    );
+  Future<CartSummary> removeItem(Session session, {required int cartItemId}) async {
+    final user = await AuthGuard.requireUser(session);
+    return _cart.removeItem(session, userId: user.id!, cartItemId: cartItemId);
+  }
+
+  Future<CartSummary> clearCart(Session session) async {
+    final user = await AuthGuard.requireUser(session);
+    return _cart.clearCart(session, user.id!);
   }
 }

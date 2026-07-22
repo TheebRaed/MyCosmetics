@@ -1,0 +1,16 @@
+### unitPrice/variant attributes are snapshotted at order time (not joined
+### live from product_variants) so historical orders display correctly
+### even if the product/variant is later edited, repriced, or deleted.
+class: OrderItem
+table: order_items
+fields:
+  orderId: int, relation(parent=orders, onDelete=Cascade)
+  variantId: int, relation(parent=product_variants, onDelete=Restrict)
+  productNameSnapshot: String
+  shadeNameSnapshot: String?
+  unitPrice: double
+  quantity: int
+  lineTotal: double
+indexes:
+  order_items_order_idx:
+    fields: orderId

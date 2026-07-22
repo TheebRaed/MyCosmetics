@@ -1,6 +1,25 @@
-enum: UserRole
-serialized: byName
-values:
-  - customer
-  - admin
-  - staff
+### Reconstructed (was missing -- file had held a stray incomplete duplicate
+### of the UserRole enum, now deleted -- see user_role.spy.yaml for the real
+### enum). passwordHash is the field AuthUser deliberately excludes (see
+### comment in auth_dto.spy.yaml). suspendedAt/suspendedReason/lastActiveAt
+### come from migration 00000000000005-admin-dashboard's ALTER TABLE users;
+### deletedAt follows the same soft-delete convention as products.deletedAt
+### (partial-unique email index mirrors products_slug_idx's reasoning).
+class: User
+table: users
+fields:
+  email: String
+  passwordHash: String
+  fullName: String
+  role: UserRole
+  avatarUrl: String?
+  suspendedAt: DateTime?
+  suspendedReason: String?
+  lastActiveAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+  deletedAt: DateTime?
+indexes:
+  users_email_idx:
+    fields: email
+    unique: true

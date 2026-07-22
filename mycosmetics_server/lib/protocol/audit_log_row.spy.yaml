@@ -1,0 +1,9 @@
+class: AuditLogRow
+fields:
+  id: int
+  adminName: String
+  action: String
+  entity: String
+  entityId: int?
+  summary: String
+  createdAt: String

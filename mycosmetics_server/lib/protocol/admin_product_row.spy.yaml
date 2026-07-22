@@ -1,0 +1,12 @@
+class: AdminProductRow
+fields:
+  id: int
+  name: String
+  categoryName: String
+  brandName: String
+  basePrice: double
+  totalStock: int
+  variantCount: int
+  isActive: bool
+  isFeatured: bool
+  ratingAvg: double

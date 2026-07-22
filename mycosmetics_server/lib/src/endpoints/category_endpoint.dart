@@ -1,49 +1,59 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/business/brand_service.dart';
+import 'package:mycosmetics_server/src/business/category_service.dart';
 import 'package:mycosmetics_server/src/utils/auth_guard.dart';
 
-class BrandEndpoint extends Endpoint {
-  final BrandService _brands = BrandService();
+class CategoryEndpoint extends Endpoint {
+  final CategoryService _categories = CategoryService();
 
-  Future<List<Brand>> listAll(Session session) {
-    return _brands.listAll(session);
+  Future<List<Category>> listTopLevel(Session session) {
+    return _categories.listTopLevel(session);
   }
 
-  Future<Brand> create(
+  Future<List<Category>> listSubCategories(Session session, {required int parentId}) {
+    return _categories.listSubCategories(session, parentId);
+  }
+
+  Future<Category> create(
     Session session, {
-    required String token,
     required String name,
     required String slug,
-    String? logoUrl,
-    String? description,
+    int? parentId,
+    String? imageUrl,
+    int sortOrder = 0,
   }) async {
-    await AuthGuard.requireAdminOrStaff(session, token);
-    return _brands.create(session, name: name, slug: slug, logoUrl: logoUrl, description: description);
+    await AuthGuard.requireAdminOrStaff(session);
+    return _categories.create(
+      session,
+      name: name,
+      slug: slug,
+      parentId: parentId,
+      imageUrl: imageUrl,
+      sortOrder: sortOrder,
+    );
   }
 
-  Future<Brand> update(
+  Future<Category> update(
     Session session, {
-    required String token,
     required int id,
     String? name,
-    String? logoUrl,
-    String? description,
+    String? imageUrl,
+    int? sortOrder,
     bool? isActive,
   }) async {
-    await AuthGuard.requireAdminOrStaff(session, token);
-    return _brands.update(
+    await AuthGuard.requireAdminOrStaff(session);
+    return _categories.update(
       session,
       id: id,
       name: name,
-      logoUrl: logoUrl,
-      description: description,
+      imageUrl: imageUrl,
+      sortOrder: sortOrder,
       isActive: isActive,
     );
   }
 
-  Future<void> delete(Session session, {required String token, required int id}) async {
-    await AuthGuard.requireAdminOrStaff(session, token);
-    await _brands.delete(session, id);
+  Future<void> delete(Session session, {required int id}) async {
+    await AuthGuard.requireAdminOrStaff(session);
+    await _categories.delete(session, id);
   }
 }

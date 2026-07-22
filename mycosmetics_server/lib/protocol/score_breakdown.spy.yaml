@@ -1,0 +1,8 @@
+class: ScoreBreakdown
+fields:
+  skinTone: double
+  undertone: double
+  popularity: double
+  userPreference: double
+  tryOnActivity: double
+  finalScore: int

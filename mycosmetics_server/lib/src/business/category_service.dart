@@ -1,39 +1,58 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:mycosmetics_server/src/generated/protocol.dart';
-import 'package:mycosmetics_server/src/repositories/brand_repository.dart';
+import 'package:mycosmetics_server/src/generated/protocol.dart' hide CategoryRepository;
+import 'package:mycosmetics_server/src/repositories/category_repository.dart';
 import 'package:mycosmetics_server/src/utils/catalog_validator.dart';
 
-class BrandService {
-  final BrandRepository _brands = BrandRepository();
+class CategoryService {
+  final CategoryRepository _categories = CategoryRepository();
 
-  Future<List<Brand>> listAll(Session session) {
-    return _brands.listAll(session);
+  Future<List<Category>> listTopLevel(Session session) {
+    return _categories.listTopLevel(session);
   }
 
-  Future<Brand> create(
+  Future<List<Category>> listSubCategories(Session session, int parentId) {
+    return _categories.listSubCategories(session, parentId);
+  }
+
+  Future<Category> create(
     Session session, {
     required String name,
     required String slug,
-    String? logoUrl,
-    String? description,
+    int? parentId,
+    String? imageUrl,
+    int sortOrder = 0,
   }) async {
-    CatalogValidator.requireNonEmpty(name, 'Brand name');
+    CatalogValidator.requireNonEmpty(name, 'Category name');
     CatalogValidator.validateSlug(slug);
-    CatalogValidator.validateUrl(logoUrl, 'Brand logo URL');
+    CatalogValidator.validateUrl(imageUrl, 'Category image URL');
 
-    final existingSlug = await _brands.findBySlug(session, slug);
+    final existingSlug = await _categories.findBySlug(session, slug);
     if (existingSlug != null) {
-      throw CatalogValidationException('A brand with this slug already exists.');
+      throw CatalogValidationException('A category with this slug already exists.');
+    }
+
+    if (parentId != null) {
+      final parent = await _categories.findById(session, parentId);
+      if (parent == null) {
+        throw CatalogValidationException('Parent category not found.');
+      }
+      // Enforce a single level of nesting (Category -> SubCategory only),
+      // matching the documented Phase 2 scope even though the schema
+      // technically allows deeper trees.
+      if (parent.parentId != null) {
+        throw CatalogValidationException('Sub-categories cannot have their own sub-categories.');
+      }
     }
 
     final now = DateTime.now().toUtc();
-    return _brands.create(
+    return _categories.create(
       session,
-      Brand(
+      Category(
+        parentId: parentId,
         name: name.trim(),
         slug: slug,
-        logoUrl: logoUrl,
-        description: description,
+        imageUrl: imageUrl,
+        sortOrder: sortOrder,
         isActive: true,
         createdAt: now,
         updatedAt: now,
@@ -41,24 +60,24 @@ class BrandService {
     );
   }
 
-  Future<Brand> update(
+  Future<Category> update(
     Session session, {
     required int id,
     String? name,
-    String? logoUrl,
-    String? description,
+    String? imageUrl,
+    int? sortOrder,
     bool? isActive,
   }) async {
-    final existing = await _brands.findById(session, id);
-    if (existing == null) throw CatalogValidationException('Brand not found.');
-    if (logoUrl != null) CatalogValidator.validateUrl(logoUrl, 'Brand logo URL');
+    final existing = await _categories.findById(session, id);
+    if (existing == null) throw CatalogValidationException('Category not found.');
+    if (imageUrl != null) CatalogValidator.validateUrl(imageUrl, 'Category image URL');
 
-    return _brands.update(
+    return _categories.update(
       session,
       existing.copyWith(
         name: name?.trim() ?? existing.name,
-        logoUrl: logoUrl ?? existing.logoUrl,
-        description: description ?? existing.description,
+        imageUrl: imageUrl ?? existing.imageUrl,
+        sortOrder: sortOrder ?? existing.sortOrder,
         isActive: isActive ?? existing.isActive,
         updatedAt: DateTime.now().toUtc(),
       ),
@@ -66,11 +85,15 @@ class BrandService {
   }
 
   Future<void> delete(Session session, int id) async {
-    final existing = await _brands.findById(session, id);
-    if (existing == null) throw CatalogValidationException('Brand not found.');
-    if (await _brands.hasProducts(session, id)) {
-      throw CatalogValidationException('Cannot delete a brand that has products. Deactivate it instead.');
+    final existing = await _categories.findById(session, id);
+    if (existing == null) throw CatalogValidationException('Category not found.');
+
+    if (await _categories.hasChildren(session, id)) {
+      throw CatalogValidationException('Cannot delete a category that has sub-categories.');
     }
-    await _brands.delete(session, id);
+    if (await _categories.hasProducts(session, id)) {
+      throw CatalogValidationException('Cannot delete a category that has products. Deactivate it instead.');
+    }
+    await _categories.delete(session, id);
   }
 }

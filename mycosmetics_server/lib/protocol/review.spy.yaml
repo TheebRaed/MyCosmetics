@@ -1,48 +1,22 @@
-### Composed read-model so the client gets cart + live variant/product info
-### + computed totals in one call instead of N follow-up requests.
-class: CartItemDetail
+### orderItemId is the enforcement mechanism for "only verified purchasers
+### can review": a review must reference the specific order_item the user
+### bought, and the service layer checks that order's status is Delivered.
+### unique(userId, orderItemId) stops the same purchase being reviewed twice
+### while still allowing a user to review the same product again from a
+### different order.
+class: Review
+table: reviews
 fields:
-  cartItem: CartItem
-  productId: int
-  productName: String
-  shadeName: String?
-  hexColor: String?
-  imageUrl: String?
-  unitPrice: double
-  availableStock: int
-  lineTotal: double
-  isAvailable: bool
-
-class: CartSummary
-fields:
-  cartId: int
-  items: List<CartItemDetail>
-  subtotal: double
-  appliedCouponCode: String?
-  discountAmount: double
-  total: double
-
-class: WishlistItemDetail
-fields:
-  wishlistItem: WishlistItem
-  productName: String
-  basePrice: double
-  imageUrl: String?
-  isInStock: bool
-
-class: OrderDetail
-fields:
-  order: Order
-  items: List<OrderItem>
-  statusHistory: List<OrderStatusHistory>
-  shippingAddress: Address
-
-class: CheckoutResult
-fields:
-  order: OrderDetail
-
-class: CouponValidationResult
-fields:
-  isValid: bool
-  message: String
-  discountAmount: double
+  productId: int, relation(parent=products, onDelete=Cascade)
+  userId: int, relation(parent=users, onDelete=Cascade)
+  orderItemId: int, relation(parent=order_items, onDelete=Cascade)
+  rating: int
+  comment: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  reviews_product_idx:
+    fields: productId
+  reviews_user_orderitem_idx:
+    fields: userId, orderItemId
+    unique: true

@@ -1,0 +1,10 @@
+enum: PaymentStatus
+serialized: byName
+values:
+  - pending
+  - authorised
+  - captured
+  - failed
+  - refunded
+  - partialRefund
+  - cancelled

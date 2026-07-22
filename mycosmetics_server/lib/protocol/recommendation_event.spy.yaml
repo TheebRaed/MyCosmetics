@@ -1,12 +1,3 @@
-enum: RecommendationEventType
-serialized: byName
-values:
-  - viewed
-  - triedOn
-  - addedToCart
-  - purchased
-  - dismissed
-
 class: RecommendationEvent
 table: recommendation_events
 fields:

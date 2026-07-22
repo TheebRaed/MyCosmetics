@@ -1,0 +1,23 @@
+class: Shipment
+table: shipments
+fields:
+  orderId: int, relation(parent=orders, onDelete=Restrict)
+  methodId: int, relation(parent=shipping_methods, onDelete=Restrict)
+  status: ShippingStatus, default=pending
+  trackingNumber: String?
+  courierName: String?
+  courierUrl: String?
+  shippingFee: double
+  estimatedDelivery: DateTime?
+  actualDelivery: DateTime?
+  notes: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  shipment_order_idx:
+    fields: orderId
+    unique: true
+  shipment_tracking_idx:
+    fields: trackingNumber
+  shipment_status_idx:
+    fields: status

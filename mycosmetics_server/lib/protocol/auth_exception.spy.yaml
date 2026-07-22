@@ -1,0 +1,7 @@
+### Serverpod protocol exception for auth_service.dart's AuthException.
+### Registered so specific messages (invalid credentials, account suspended,
+### reset link expired, etc.) propagate to the Flutter client's catch blocks
+### instead of surfacing as a generic Internal Server Error.
+exception: AuthException
+fields:
+  message: String

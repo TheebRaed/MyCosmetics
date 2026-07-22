@@ -1,0 +1,7 @@
+enum: NotificationAudience
+serialized: byName
+values:
+  - allUsers
+  - selectedUsers
+  - byCategory
+  - byPurchaseHistory

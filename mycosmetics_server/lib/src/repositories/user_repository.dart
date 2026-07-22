@@ -1,37 +1,34 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:mycosmetics_server/src/generated/protocol.dart';
 
-class AddressRepository {
-  Future<List<Address>> listForUser(Session session, int userId) {
-    return Address.db.find(
+/// All direct DB access for User lives here. Endpoints never call
+/// User.db.* directly, so query logic can be unit-tested/changed in one place.
+class UserRepository {
+  Future<User?> findByEmail(Session session, String email) {
+    return User.db.findFirstRow(
       session,
-      where: (t) => t.userId.equals(userId),
-      orderBy: (t) => t.isDefault,
-      orderDescending: true,
+      where: (t) => t.email.equals(email.toLowerCase()) & t.deletedAt.equals(null),
     );
   }
 
-  Future<Address?> findById(Session session, int id) {
-    return Address.db.findById(session, id);
+  Future<User?> findById(Session session, int id) {
+    return User.db.findById(session, id);
   }
 
-  Future<Address> create(Session session, Address address) {
-    return Address.db.insertRow(session, address);
+  Future<User> create(Session session, User user) {
+    return User.db.insertRow(session, user);
   }
 
-  Future<Address> update(Session session, Address address) {
-    return Address.db.updateRow(session, address);
+  Future<User> update(Session session, User user) {
+    return User.db.updateRow(session, user);
   }
 
-  Future<void> delete(Session session, int id) {
-    return Address.db.deleteWhere(session, where: (t) => t.id.equals(id));
-  }
-
-  /// Clears isDefault on all of a user's other addresses (used when setting a new default).
-  Future<void> clearDefaultForUser(Session session, int userId) async {
-    final addresses = await listForUser(session, userId);
-    for (final a in addresses.where((a) => a.isDefault)) {
-      await update(session, a.copyWith(isDefault: false));
-    }
+  Future<void> softDelete(Session session, int id) async {
+    final user = await findById(session, id);
+    if (user == null) return;
+    await User.db.updateRow(
+      session,
+      user.copyWith(deletedAt: DateTime.now().toUtc()),
+    );
   }
 }
