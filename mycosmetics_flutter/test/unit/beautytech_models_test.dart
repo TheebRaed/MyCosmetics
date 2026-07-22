@@ -69,8 +69,9 @@ String _brightnessLabel(double b) {
 }
 
 int? _parseHex(String hex) {
-  try { return int.parse(hex.replaceAll('#', '').trim().padLeft(6, '0'), radix: 16); }
-  catch (_) { return null; }
+  final cleaned = hex.replaceAll('#', '').trim();
+  if (!RegExp(r'^[0-9a-fA-F]{6}$').hasMatch(cleaned)) return null;
+  return int.parse(cleaned, radix: 16);
 }
 
 List<int> _parseVariantIds(String s) {
