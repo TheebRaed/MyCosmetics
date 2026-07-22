@@ -69,7 +69,11 @@ jobs:
           SERVERPOD_REDIS_HOST: localhost
           SERVERPOD_REDIS_PASSWORD: ''
           SERVERPOD_SESSION_SECRET: test-secret-key
-        run: dart run bin/main.dart --mode=test --apply-migrations
+        # main.dart applies migrations then starts serving indefinitely --
+        # it never exits on its own, so bound it with a timeout. Once the
+        # migration is applied the server keeps running until killed; a
+        # non-zero (124) exit from the timeout itself is expected here.
+        run: timeout 30 dart run bin/main.dart --mode=test --apply-migrations || [ $? -eq 124 ]
       - name: Run unit tests
         working-directory: ./mycosmetics_server
         env:
